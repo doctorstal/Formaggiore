@@ -8,6 +8,7 @@ import {
     SQLiteObject
 } from "@ionic-native/sqlite";
 import {Platform} from "ionic-angular";
+import {dbUpgradeList} from "./db.upgrade.list";
 
 @Injectable()
 export class DatabaseService {
@@ -15,25 +16,28 @@ export class DatabaseService {
     private database: SQLiteObject;
 
     constructor(private sqlite: SQLite, private errorHandler: ErrorHandler, platform: Platform) {
-        platform.ready().then(() => {
-            this.connect();
-        }).catch(this.errorHandler.handleError);
+        platform.ready()
+            .then(() => this.connect())
+            .then(database => this.updateTablesStructure(database))
+            .catch(error => {
+                errorHandler.handleError("Error while creating database structure\n" + JSON.stringify(error));
+            });
     }
 
 
-    private connect() {
-        this.sqlite.create(DatabaseService.DATABASE_CONFIG)
-            .then(this.setDatabase)
-            .then(this.createTablesStructure)
-            .catch(this.errorHandler.handleError);
+    private connect(): Promise<SQLiteObject> {
+        return this.sqlite.create(DatabaseService.DATABASE_CONFIG)
+            .then(database => this.setDatabase(database))
     }
 
-    private setDatabase(database: SQLiteObject): SQLiteObject {
+    private setDatabase(database: SQLiteObject): Promise<SQLiteObject> {
         this.database = database;
-        return database;
+        return Promise.resolve(database);
     }
 
-    private createTablesStructure(database: SQLiteObject):SQLiteObject {
-        return database;
+    private updateTablesStructure(database: SQLiteObject): Promise<SQLiteObject> {
+        return dbUpgradeList.upgrade(database);
     }
 }
+
+
