@@ -10,7 +10,8 @@
         "lint": "ionic-app-scripts lint",
         "ionic:build": "ionic-app-scripts build",
         "ionic:serve": "ionic-app-scripts serve",
-        "emulate": "ionic emulate android -l -s -c"
+        "emulate": "ionic emulate android -l -s -c",
+        "serve": "ionic serve"
     },
     "dependencies": {
         "@angular/common": "4.0.2",

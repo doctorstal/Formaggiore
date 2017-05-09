@@ -1,5 +1,6 @@
 import {
     ErrorHandler,
+    Inject,
     Injectable
 } from "@angular/core";
 import {
@@ -7,16 +8,16 @@ import {
     SQLiteDatabaseConfig,
     SQLiteObject
 } from "@ionic-native/sqlite";
-import {Platform} from "ionic-angular";
 import {dbUpgradeList} from "./db.upgrade.list";
+import {PLATFORM_READY} from "../app/app.tokens";
 
 @Injectable()
-export class DatabaseService {
-    static readonly DATABASE_CONFIG: SQLiteDatabaseConfig = {name: 'main.db', location: 'default'};
+export class DataServiceImpl implements DataService{
+    private static readonly DATABASE_CONFIG: SQLiteDatabaseConfig = {name: 'main.db', location: 'default'};
     private database: SQLiteObject;
 
-    constructor(private sqlite: SQLite, private errorHandler: ErrorHandler, platform: Platform) {
-        platform.ready()
+    constructor(private sqlite: SQLite, private errorHandler: ErrorHandler, @Inject(PLATFORM_READY) ready:Promise<void>) {
+        ready
             .then(() => this.connect())
             .then(database => this.updateTablesStructure(database))
             .catch(error => {
@@ -26,7 +27,7 @@ export class DatabaseService {
 
 
     private connect(): Promise<SQLiteObject> {
-        return this.sqlite.create(DatabaseService.DATABASE_CONFIG)
+        return this.sqlite.create(DataServiceImpl.DATABASE_CONFIG)
             .then(database => this.setDatabase(database))
     }
 
@@ -38,6 +39,10 @@ export class DatabaseService {
     private updateTablesStructure(database: SQLiteObject): Promise<SQLiteObject> {
         return dbUpgradeList.upgrade(database);
     }
+}
+
+export class DataService {
+
 }
 
 

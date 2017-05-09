@@ -6,7 +6,8 @@ import {
 import {
     IonicApp,
     IonicErrorHandler,
-    IonicModule
+    IonicModule,
+    Platform
 } from "ionic-angular";
 import {SplashScreen} from "@ionic-native/splash-screen";
 import {StatusBar} from "@ionic-native/status-bar";
@@ -14,7 +15,8 @@ import {StatusBar} from "@ionic-native/status-bar";
 import {MyApp} from "./app.component";
 import {HomePage} from "../pages/home/home";
 import {SQLite} from "@ionic-native/sqlite";
-import {DatabaseService} from "../services/database.service";
+import {PLATFORM_READY} from "./app.tokens";
+import {dataServiceProviders} from "../services/data.service.provider";
 
 @NgModule({
     declarations: [
@@ -31,7 +33,8 @@ import {DatabaseService} from "../services/database.service";
         HomePage
     ],
     providers: [
-        DatabaseService,
+        {provide: PLATFORM_READY, useFactory: (platform) => platform.ready(), deps: [Platform]},
+        ...dataServiceProviders,
         SQLite,
         StatusBar,
         SplashScreen,
