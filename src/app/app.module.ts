@@ -13,15 +13,14 @@ import {SplashScreen} from "@ionic-native/splash-screen";
 import {StatusBar} from "@ionic-native/status-bar";
 
 import {MyApp} from "./app.component";
-import {HomePage} from "../pages/home/home";
 import {SQLite} from "@ionic-native/sqlite";
 import {PLATFORM_READY} from "./app.tokens";
 import {dataServiceProviders} from "../services/data.service.provider";
+import {AuthService} from "../providers/auth-service";
 
 @NgModule({
     declarations: [
-        MyApp,
-        HomePage
+        MyApp
     ],
     imports: [
         BrowserModule,
@@ -29,8 +28,7 @@ import {dataServiceProviders} from "../services/data.service.provider";
     ],
     bootstrap: [IonicApp],
     entryComponents: [
-        MyApp,
-        HomePage
+        MyApp
     ],
     providers: [
         {provide: PLATFORM_READY, useFactory: (platform) => platform.ready(), deps: [Platform]},
@@ -38,7 +36,8 @@ import {dataServiceProviders} from "../services/data.service.provider";
         SQLite,
         StatusBar,
         SplashScreen,
-        {provide: ErrorHandler, useClass: IonicErrorHandler}
+        {provide: ErrorHandler, useClass: IonicErrorHandler},
+        AuthService
     ]
 })
 export class AppModule {

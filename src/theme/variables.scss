@@ -2,7 +2,6 @@
 // http://ionicframework.com/docs/v2/theming/
 $font-path: "../assets/fonts";
 
-@import "ionic.globals";
 
 
 // Shared Variables
@@ -12,8 +11,7 @@ $font-path: "../assets/fonts";
 // To view all the possible Ionic variables, see:
 // http://ionicframework.com/docs/v2/theming/overriding-ionic-variables/
 
-
-
+$background-color: #fefef0;
 
 // Named Color Variables
 // --------------------------------------------------

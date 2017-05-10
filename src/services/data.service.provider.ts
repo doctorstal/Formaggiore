@@ -19,4 +19,5 @@ export const dataServiceProviders: Provider[] = [
                 injector.get(DataServiceImpl);
         },
         deps: [Platform, Injector]
-    }];
+    }
+];

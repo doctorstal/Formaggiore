@@ -1,0 +1,17 @@
+<ion-content padding>
+    <div>
+        <form [formGroup]="recipe" (ngSubmit)="createRecipe()">
+            <ion-item>
+                <ion-label>Title</ion-label>
+                <ion-input type="text" formControlName="name"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label>Description</ion-label>
+                <ion-textarea type="text" formControlName="description"></ion-textarea>
+            </ion-item>
+
+            <button ion-button type="button" (click)="navCtrl.pop()">Cancel</button>
+            <button ion-button type="submit" [disabled]="!recipe.valid">Create</button>
+        </form>
+    </div>
+</ion-content>

@@ -1,12 +1,37 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-navbar>
+    <ion-navbar>
+        <ion-title>
+            Formaggiore
+        </ion-title>
+        <ion-buttons end *ngIf="authService.loggedIn">
+            <button ion-button icon-left (click)="logout()">
+                <ion-icon name="log-out"></ion-icon>
+                Logout
+            </button>
+        </ion-buttons>
+    </ion-navbar>
 </ion-header>
 
-<ion-content padding>
-  {{test}}
-  Hello, world!
+<ion-content padding class="home">
+    <h1>With this app you can make some cheese!</h1>
+    <ion-list *ngIf="!authService.loggedIn">
+        <div>
+            ...but you should log in first.
+        </div>
+        <button ion-button navPush="LoginPage">Login</button>
+    </ion-list>
+    <ion-list *ngIf="authService.loggedIn">
+        <div>
+            Ok, now you can:
+        </div>
+        <div>
+            <button ion-button="" navPush="CreateRecipePage">Create New Recipe</button>
+        </div>
+        <div>
+            <button ion-button="" navPush="RecipesPage">Browse Recipes</button>
+        </div>
+        <div>
+            <button ion-button="" navPush="RegisterPage">Register New User</button>
+        </div>
+    </ion-list>
 </ion-content>

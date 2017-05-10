@@ -1,0 +1,15 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>List of saved recipes</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content padding>
+
+  <ion-list>
+    <ion-item *ngFor="let recipe of recipes">Recipe: {{recipe.name}}</ion-item>
+  </ion-list>
+
+</ion-content>
