@@ -15,7 +15,7 @@ import {StatusBar} from "@ionic-native/status-bar";
 import {MyApp} from "./app.component";
 import {SQLite} from "@ionic-native/sqlite";
 import {PLATFORM_READY} from "./app.tokens";
-import {dataServiceProviders} from "../services/data.service.provider";
+import {dataServiceProviders} from "../providers/data/data.service.provider";
 import {AuthService} from "../providers/auth-service";
 
 @NgModule({

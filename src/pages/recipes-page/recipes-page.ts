@@ -4,10 +4,8 @@ import {
     NavController,
     NavParams
 } from "ionic-angular";
-import {
-    DataService,
-    Recipe
-} from "../../services/data.service";
+import {DataService} from "../../providers/data/data.service";
+import {Recipe} from "../../providers/data/datatypes";
 
 /**
  * Generated class for the RecipesPage page.

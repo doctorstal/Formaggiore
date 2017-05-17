@@ -5,28 +5,61 @@ type UpgradeScript = (database: SQLiteObject) => Promise<any>;
 
 
 let list: UpgradeScript[] = [];
+// Basic user system
 list[0] = transaction => {
-    return transaction.executeSql(`CREATE TABLE IF NOT EXISTS users (
-      id            INTEGER PRIMARY KEY,
-      name          TEXT(128),
-      login         TEXT(64),
-      password_hash TEXT(128)
-    )`, []);
+    return transaction.executeSql(`BEGIN TRANSACTION`, [])
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS users (
+          id            INTEGER PRIMARY KEY,
+          name          TEXT,
+          login         TEXT NOT NULL,
+          password_hash TEXT,
+          CONSTRAINT user_login_unique UNIQUE (login)
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS userData (
+          user_id INTEGER,
+          email   TEXT,
+          FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS userSessions (
+          id          INTEGER PRIMARY KEY,
+          user_id     INTEGER,
+          expire_time INTEGER,
+          FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE 
+        )`, []))
 
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS roles (
+          id   INTEGER,
+          name TEXT,
+          CONSTRAINT role_id_unique UNIQUE (id)
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS userRoles (
+          user_id INTEGER,
+          role_id INTEGER,
+          FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE,
+          FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`INSERT INTO roles (id, name) VALUES (?, ?)`, [1, 'Manager']))
+        .then(() => transaction.executeSql(`INSERT INTO roles (id, name) VALUES (?, ?)`, [2, 'Employee']))
+        .then(() => transaction.executeSql(`INSERT INTO roles (id, name) VALUES (?, ?)`, [3, 'Intern']))
+        .then(() => transaction.executeSql(`INSERT INTO users (id, login, name, password_hash)
+        VALUES (?, ?, ?, ?)`, [1, 'admin', '', 'f6fdffe48c908deb0f4c3bd36c032e72'])) // Default is admin/admin
+        .then(() => transaction.executeSql(`INSERT INTO userRoles (user_id, role_id) VALUES (?, ?)`, [1, 1]))
+        .then(() => transaction.executeSql(`COMMIT`, []));
 };
 
 
 list[1] = (transaction: SQLiteObject) => {
     return transaction.executeSql(`CREATE TABLE IF NOT EXISTS recipes (
       id   INTEGER PRIMARY KEY,
-      name TEXT(255)
+      name TEXT,
+      description TEXT
     )`, [])
         .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS recipeSteps
         (
           id          INTEGER PRIMARY KEY,
           recipe      INTEGER,
           step_number INTEGER,
-          title       TEXT(255),
+          title       TEXT,
           FOREIGN KEY (recipe) REFERENCES recipes (id)
         )
         `, []))
@@ -36,6 +69,14 @@ list[1] = (transaction: SQLiteObject) => {
           description TEXT,
           FOREIGN KEY (step) REFERENCES recipeSteps (id)
         )`, []))
+};
+
+list[2] = (transaction: SQLiteObject) => {
+    return transaction.executeSql(`CREATE TABLE IF NOT EXISTS userData (
+      user_id INTEGER,
+      email   TEXT(255)
+    )`, [])
+
 };
 
 class UpgradeList {

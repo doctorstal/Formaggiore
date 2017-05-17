@@ -4,7 +4,7 @@ import {
 } from "@angular/core";
 import {StatusBar} from "@ionic-native/status-bar";
 import {SplashScreen} from "@ionic-native/splash-screen";
-import {DataService} from "../services/data.service";
+import {DataService} from "../providers/data/data.service";
 import {PLATFORM_READY} from "./app.tokens";
 @Component({
     templateUrl: 'app.html'

@@ -11,7 +11,7 @@ import {
     FormGroup,
     Validators
 } from "@angular/forms";
-import {DataService} from "../../services/data.service";
+import {DataService} from "../../providers/data/data.service";
 import "rxjs/add/operator/mergeMap";
 import "rxjs/add/observable/fromPromise";
 import {Observable} from "rxjs/Observable";

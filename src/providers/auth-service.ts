@@ -1,11 +1,13 @@
 import {Injectable} from "@angular/core";
 import "rxjs/add/operator/mergeMap";
 import "rxjs/add/operator/toPromise";
+import "rxjs";
 import {Observable} from "rxjs/Observable";
+import {DataService} from "./data/data.service";
 import {
-    DataService,
+    Credentials,
     User
-} from "../services/data.service";
+} from "./data/datatypes";
 
 
 @Injectable()
@@ -13,10 +15,16 @@ export class AuthService {
     private currentUser: User;
 
     constructor(private dataService: DataService) {
-        dataService.session$.flatMap(this.dataService.getUser)
+        dataService.session$
+            .flatMap(session =>
+                this.dataService.getUser(session)
+                    .catch(error => {
+                        this.currentUser = null;
+                        return Observable.empty<User>();
+                    }))
             .subscribe(
                 res => this.currentUser = res,
-                error => this.currentUser = null
+                error => console.log("Fatal error while getting session info.")
             );
     }
 
@@ -24,16 +32,16 @@ export class AuthService {
         return this.currentUser != null;
     }
 
-    public login(credentials: { email: string, password: string }): Observable<boolean> {
-        if (credentials.email === null || credentials.password === null) {
+    public login(credentials: { login: string, password: string }): Observable<boolean> {
+        if (credentials.login === null || credentials.password === null) {
             return Observable.throw("Please insert credentials");
         } else {
             return this.dataService.login(credentials);
         }
     }
 
-    public register(credentials): Observable<boolean> {
-        if (credentials.email === null || credentials.password === null) {
+    public register(credentials: Credentials): Observable<boolean> {
+        if (credentials.login === null || credentials.password === null) {
             return Observable.throw("Please insert credentials");
         } else {
             // At this point store the credentials to your backend!

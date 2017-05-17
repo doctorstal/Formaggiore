@@ -21,7 +21,7 @@ import {AuthService} from "../../providers/auth-service";
 })
 export class LoginPage {
     loading: Loading;
-    registerCredentials = {email: '', password: ''};
+    registerCredentials = {login: '', password: ''};
 
     constructor(private nav: NavController,
                 private auth: AuthService,
