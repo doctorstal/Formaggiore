@@ -1,14 +1,8 @@
 import {
     ErrorHandler,
-    Inject,
     Injectable
 } from "@angular/core";
-import {
-    SQLite,
-    SQLiteObject
-} from "@ionic-native/sqlite";
 import {dbUpgradeList} from "./db.upgrade.list";
-import {PLATFORM_READY} from "../../app/app.tokens";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/of";
 import "rxjs/add/observable/throw";
@@ -22,59 +16,49 @@ import {
     User
 } from "./datatypes";
 import {Md5} from "ts-md5/dist/md5";
+import {DB} from "./database/sqlite.implementation";
 
 @Injectable()
-export abstract class DataService {
+export class DataService {
     protected session: Subject<Session> = new BehaviorSubject(null);
     protected recipes: BehaviorSubject<Recipe[]> = new BehaviorSubject([]);
     session$: Observable<Session> = this.session.asObservable();
     recipes$: Observable<Recipe[]> = this.recipes.asObservable();
 
-    abstract login(credentials: Credentials): Observable<boolean>;
-
-    abstract logout(): Observable<true>;
-
-    abstract getUser(res: Session): Observable<User>;
-
-    abstract createUser(credentials: Credentials): Observable<boolean>;
-
-    abstract createRecipe(recipe: Recipe): Observable<boolean>;
-}
-
-
-
-export class DataServiceImpl extends DataService {
-
-    constructor(private sqlite: SQLite,
-                private errorHandler: ErrorHandler,
-                @Inject(PLATFORM_READY) ready: Promise<void>) {
-        super();
-        ready
-            .then(() => this.connect())
-            .then(database => this.updateTablesStructure(database))
+    constructor(private db: DB,
+                private errorHandler: ErrorHandler) {
+        db.ready()
+            .then(() => this.updateTablesStructure())
             .catch(error => {
+                console.log(error);
                 errorHandler.handleError("Error while creating database structure\n" + JSON.stringify(error));
             });
     }
 
     login(credentials: Credentials): Observable<boolean> {
-        return Observable.fromPromise(
-            this.database.executeSql(`SELECT id
-                                      FROM users
-                                      WHERE login = ? AND password_hash = ?`,
-                [credentials.email, this.getPassHash(credentials)])
-                .then(data => {
-                    if (data.length > 0) {
-                        this.session.next({userId: data.rows.item(1).id});
-                        return true;
-                    }
-                    this.session.next(null);
-                    return false;
-                })
+        // TODO we should actually create session in DB
+        return Observable.create(observer =>
+            this.db.transaction(tx =>
+                tx.executeSql(`SELECT id
+                               FROM users
+                               WHERE login = ? AND password_hash = ?`,
+                    [credentials.login, this.getPassHash(credentials)])
+                    .then(data => {
+                        console.log(data);
+                        if (data.rows.length > 0) {
+                            this.session.next({userId: data.rows.item(0).id});
+                            observer.next(true);
+                        } else {
+                            this.session.next(null);
+                            observer.next(false);
+                        }
+                        observer.complete();
+                    })
+            )
         );
     }
 
-    private getPassHash(credentials:Credentials): string {
+    private getPassHash(credentials: Credentials): string {
         return <string>Md5.hashStr(credentials.login + credentials.password);
     }
 
@@ -86,67 +70,65 @@ export class DataServiceImpl extends DataService {
         });
     }
 
-    getUser(res: Session): Observable<User> {
-        return Observable.fromPromise(
-            this.database.executeSql(`SELECT
-                                        name,
-                                        login
-                                      FROM users
-                                      WHERE id == ?`, [res.userId])
-                .then(data => {
-                    if (data.length > 0) {
-                        let item = data.rows.item(0);
-                        return new User(item.name, item.login);
-                    } else {
-                        return Promise.reject('No such user!');
-                    }
-                })
+    createUser(credentials: Credentials): Observable<boolean> {
+        return Observable.create(observer =>
+            this.db.transaction(tx =>
+                tx.executeSql(`INSERT INTO users (name, login, password_hash) VALUES
+                  (?, ?, ?)`, [credentials.name, credentials.login, this.getPassHash(credentials)])
+                    .then(() => credentials.email && tx.executeSql(`
+                      INSERT INTO userData (user_id, email) SELECT
+                                                              id,
+                                                              ?
+                                                            FROM users
+                                                            WHERE login = ?
+                    `, [credentials.email, credentials.login]))
+                    .then(() => observer.next(true))
+                    .then(() => observer.complete())
+                    .catch(observer.error)
+            )
         );
     }
 
-    createUser(credentials:Credentials): Observable<boolean> {
-        // TODO create default user in db.upgrade.scripte
-        this.database.executeSql(`
-          INSERT INTO users (name, login, password_hash) VALUES (?, ?, ?)
-        `, [credentials.name, credentials.login, this.getPassHash(credentials)])
-            .then(() => this.database.executeSql(`
-              INSERT INTO userData (user_id, email) SELECT
-                                                      id,
-                                                      ?
-                                                    FROM users
-                                                    WHERE login = ?
-            `, [credentials.email, credentials.login]));
-
-
-        return Observable.fromPromise(
-            this.database.executeSql(`INSERT INTO users (email, password_hash)
-            VALUES (?, ?)`, [credentials.email, credentials.password])
-                .then(data => (data.rowsAffected == 1))
+    getUser(session: Session): Observable<User> {
+        console.log(session);
+        return Observable.create(observer => {
+                if (session == null) {
+                    observer.error('No such user!');
+                } else
+                    this.db.transaction(tx =>
+                        tx.executeSql(`SELECT
+                                         name,
+                                         login
+                                       FROM users
+                                       WHERE id == ?`, [session.userId])
+                            .then(data => {
+                                console.log(data);
+                                if (data.rows.length > 0) {
+                                    let item = data.rows.item(0);
+                                    observer.next(new User(item.name, item.login));
+                                    observer.complete();
+                                } else {
+                                    observer.error('No such user!');
+                                }
+                            })
+                    )
+            }
         );
     }
+
 
     createRecipe(recipe: Recipe): Observable<boolean> {
-        return Observable.of(true);
+        return Observable.create(observer => this.db.transaction(tx =>
+            tx.executeSql(`INSERT INTO recipes (name, description)
+            VALUES (?, ?)`, [recipe.name, recipe.description]))
+            .then(() => observer.next(true))
+            .then(() => observer.complete())
+            .catch(observer.error)
+        );
     }
 
-    private database: SQLiteObject;
-
-
-    private connect(): Promise<SQLiteObject> {
-        return this.sqlite.create({
-        name: 'main.db',
-        location: 'default'
-    })
-            .then(database => this.setDatabase(database))
-    }
-
-    private setDatabase(database: SQLiteObject): Promise<SQLiteObject> {
-        this.database = database;
-        return Promise.resolve(database);
-    }
-
-    private updateTablesStructure(database: SQLiteObject): Promise<SQLiteObject> {
-        return dbUpgradeList.upgrade(database);
+    private updateTablesStructure(): Promise<any> {
+        return dbUpgradeList.upgrade(this.db);
     }
 }
 

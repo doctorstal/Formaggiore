@@ -8,6 +8,7 @@ import {
     SQLite,
     SQLiteObject
 } from "@ionic-native/sqlite";
+
 export abstract class DB {
     abstract transaction(executor: (tx: DBTransaction) => any): Promise<any>;
     abstract ready(): Promise<any>;
@@ -80,7 +81,7 @@ export class WebDB extends DB {
                         (t, result) => resolve(result),
                         (t, error) => {
                             reject(error);
-                            return true;
+                            return false;
                         });
                 });
                 return promise;

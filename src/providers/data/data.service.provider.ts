@@ -1,23 +1,25 @@
-import {DataServiceWeb} from "./data.service.web";
-import {
-    DataService,
-    DataServiceImpl
-} from "./data.service";
+import {DataService} from "./data.service";
 import {
     Injector,
     Provider
 } from "@angular/core";
 import {Platform} from "ionic-angular";
+import {
+    DB,
+    NativeDB,
+    WebDB
+} from "./database/sqlite.implementation";
 export const dataServiceProviders: Provider[] = [
-    DataServiceImpl,
-    DataServiceWeb,
+    WebDB,
+    NativeDB,
     {
-        provide: DataService,
+        provide: DB,
         useFactory: (platform: Platform, injector: Injector) => {
             return (platform.is('core') || platform.is('mobileweb')) ?
-                injector.get(DataServiceWeb) :
-                injector.get(DataServiceImpl);
+                injector.get(WebDB) :
+                injector.get(NativeDB);
         },
         deps: [Platform, Injector]
-    }
+    },
+    DataService
 ];

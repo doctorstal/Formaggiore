@@ -16,15 +16,15 @@ export class AuthService {
 
     constructor(private dataService: DataService) {
         dataService.session$
-            .flatMap(session =>
-                this.dataService.getUser(session)
+            .switchMap(session =>
+                session ? this.dataService.getUser(session)
                     .catch(error => {
                         this.currentUser = null;
                         return Observable.empty<User>();
-                    }))
+                    }): Observable.of(null))
             .subscribe(
                 res => this.currentUser = res,
-                error => console.log("Fatal error while getting session info.")
+                error => console.log("Fatal error while getting session info." + error)
             );
     }
 
