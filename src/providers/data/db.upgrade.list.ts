@@ -16,14 +16,15 @@ list[0] = transaction => {
           name          TEXT,
           login         TEXT NOT NULL,
           password_hash TEXT,
-          CONSTRAINT user_login_unique UNIQUE (login)
+          CONSTRAINT users_login_unique UNIQUE (login)
         )`, []))
         .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS userData (
           user_id INTEGER,
           email   TEXT,
           FOREIGN KEY (user_id) REFERENCES users (id)
             ON DELETE CASCADE
-            ON UPDATE CASCADE
+            ON UPDATE CASCADE,
+          CONSTRAINT userdata_user_id_unique UNIQUE (user_id)
         )`, []))
         .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS userSessions (
           id          INTEGER PRIMARY KEY,
@@ -33,7 +34,6 @@ list[0] = transaction => {
             ON DELETE CASCADE
             ON UPDATE CASCADE
         )`, []))
-
         .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS roles (
           id   INTEGER,
           name TEXT,
@@ -61,7 +61,7 @@ list[0] = transaction => {
         VALUES (?, ?)`, [1, 1]))
 };
 
-
+// Recipes and steps
 list[1] = (transaction: DBTransaction) => {
     return Promise.resolve()
         .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS recipes (
@@ -69,30 +69,176 @@ list[1] = (transaction: DBTransaction) => {
           name        TEXT,
           description TEXT
         )`, []))
-        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS recipeSteps
-        (
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS steps (
           id          INTEGER PRIMARY KEY,
-          recipe      INTEGER,
           step_number INTEGER,
-          title       TEXT,
-          FOREIGN KEY (recipe) REFERENCES recipes (id)
-        )
-        `, []))
-        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS recipeDescriptions (
-          id          INTEGER PRIMARY KEY,
-          step        INTEGER,
+          name        TEXT,
           description TEXT,
-          FOREIGN KEY (step) REFERENCES recipeSteps (id)
+          recipe_id   INTEGER,
+          FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS recipeAuthors (
+          user_id   INTEGER,
+          recipe_id INTEGER,
+          FOREIGN KEY (user_id) REFERENCES users (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS completedRecipes (
+          user_id   INTEGER,
+          recipe_id INTEGER,
+          FOREIGN KEY (user_id) REFERENCES users (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
         )`, []))
 };
 
+// Media types
 list[2] = (transaction: DBTransaction) => {
     return Promise.resolve()
-        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS userData (
-          user_id INTEGER,
-          email   TEXT(255)
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS mediaTypes (
+          id   INTEGER PRIMARY KEY,
+          name TEXT
+        )`, []))
+        .then(() => transaction.executeSql(`INSERT INTO mediaTypes (id, name)
+        VALUES (?, ?)`, [1, "Photo"]))
+        .then(() => transaction.executeSql(`INSERT INTO mediaTypes (id, name)
+        VALUES (?, ?)`, [2, "Video"]))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS medias (
+          id      INTEGER PRIMARY KEY,
+          type_id INTEGER,
+          content BLOB,
+          FOREIGN KEY (type_id) REFERENCES mediaTypes (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS recipeMedias (
+          media_id  INTEGER,
+          recipe_id INTEGER,
+          FOREIGN KEY (media_id) REFERENCES medias (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS stepMedias (
+          media_id INTEGER,
+          step_id  INTEGER,
+          FOREIGN KEY (media_id) REFERENCES medias (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (step_id) REFERENCES steps (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
         )`, []))
 };
+
+// Knowledge
+list[3] = (transaction: DBTransaction) => {
+    return Promise.resolve()
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS topics (
+          id   INTEGER PRIMARY KEY,
+          name TEXT
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS knowledges (
+          id          INTEGER PRIMARY KEY,
+          name        TEXT,
+          description TEXT
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS knowledgeTopics (
+          knowledge_id INTEGER,
+          topic_id     INTEGER,
+          FOREIGN KEY (knowledge_id) REFERENCES knowledges (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (topic_id) REFERENCES topics (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS stepKnowledges (
+          knowledge_id INTEGER,
+          step_id      INTEGER,
+          FOREIGN KEY (knowledge_id) REFERENCES knowledges (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (step_id) REFERENCES steps (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS recipeKnowledges (
+          knowledge_id INTEGER,
+          recipe_id    INTEGER,
+          FOREIGN KEY (knowledge_id) REFERENCES knowledges (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+};
+
+// Devices
+list[4] = (transaction: DBTransaction) => {
+    return Promise.resolve()
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS devices (
+          id       INTEGER PRIMARY KEY,
+          name     TEXT,
+          bt_token TEXT
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS sTypes (
+          id        INTEGER PRIMARY KEY,
+          token     TEXT,
+          name      TEXT,
+          min_value INTEGER,
+          max_value INTEGER
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS deviceSensors (
+          id        INTEGER PRIMARY KEY,
+          device_id INTEGER,
+          stype_id  INTEGER,
+          FOREIGN KEY (device_id) REFERENCES devices (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (stype_id) REFERENCES sTypes (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+};
+
+// Directives
+list[5] = (transaction: DBTransaction) => {
+    return Promise.resolve()
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS directives (
+          id          INTEGER PRIMARY KEY,
+          stype_id    INTEGER,
+          start_value INTEGER,
+          end_value   INTEGER,
+          time        INTEGER,
+          FOREIGN KEY (stype_id) REFERENCES sTypes (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        )`, []))
+        .then(() => transaction.executeSql(`CREATE TABLE IF NOT EXISTS stepDirectives (
+          step_id      INTEGER,
+          directive_id INTEGER,
+          FOREIGN KEY (step_id) REFERENCES steps (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          FOREIGN KEY (directive_id) REFERENCES directives (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+          CONSTRAINT stepDirectives_directive_id_unique UNIQUE (directive_id)
+        )`, []))
+}
 
 class UpgradeList {
     constructor(private upgradeScripts: UpgradeScript[]) {
