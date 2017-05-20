@@ -11,6 +11,7 @@ import {
     Recipe,
     Step
 } from "../../providers/data/datatypes";
+import {Subject} from "rxjs/Subject";
 
 /**
  * Generated class for the RecipeEditPage page.
@@ -26,19 +27,23 @@ import {
 export class RecipeEditPage {
 
     private details: Recipe;
-    private details$: Observable<Recipe>;
+    private detailsSubject: Subject<any>;
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
                 private loadingCtrl: LoadingController,
                 private recipesService: RecipesService) {
 
-        this.details$ = this.recipesService.getRecipe(this.navParams.data.id)
-            .map(data => this.details = data);
+        this.detailsSubject = new Subject();
+        this.detailsSubject
+            .flatMap(() => this.recipesService.getRecipe(this.navParams.data.id))
+            .subscribe(data => this.details = data);
 
-        this.details$.subscribe();
 
+    }
 
+    ionViewWillEnter() {
+        this.detailsSubject.next();
     }
 
     saveRecipe(value) {
@@ -59,8 +64,8 @@ export class RecipeEditPage {
         let loading = this.loadingCtrl.create({content: 'Saving recipe'});
         Observable.fromPromise(loading.present())
             .flatMap(() => this.recipesService.addStep(step, this.details))
-            .map(() => this.details$.subscribe())
             .flatMap(success => loading.dismiss())
+            .map(() => this.detailsSubject.next())
             .subscribe();
     }
 
@@ -71,9 +76,9 @@ export class RecipeEditPage {
     deleteStep(step: Step) {
         let loading = this.loadingCtrl.create({content: 'Saving recipe'});
         Observable.fromPromise(loading.present())
-            .flatMap(() => this.recipesService.addStep(step, this.details))
-            .map(() => this.details$.subscribe())
+            .flatMap(() => this.recipesService.deleteStep(step))
             .flatMap(success => loading.dismiss())
+            .map(() => this.detailsSubject.next())
             .subscribe();
 
     }

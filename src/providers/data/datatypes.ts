@@ -8,6 +8,10 @@ export type Recipe = BasicArticle & {
     steps?: Step[];
 };
 
+export type RecipeDetails = BasicArticle & {
+    steps?: StepDetails[];
+};
+
 export type Step = BasicArticle & {
     step_number?:number;
 };

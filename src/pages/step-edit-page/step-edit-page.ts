@@ -37,6 +37,9 @@ export class StepEditPage {
                 private recipesService: RecipesService,
                 private camera: Camera) {
         this.step = navParams.data;
+        this.recipesService.getStepMedia(this.step.id)
+            .map(media => media.map(m => this.base64Images.push(m.content)))
+            .subscribe();
     }
 
     save(value: Step) {
@@ -64,7 +67,7 @@ export class StepEditPage {
 
     takePicture() {
         this.camera.getPicture({
-            destinationType: this.camera.DestinationType.FILE_URI,
+            destinationType: this.camera.DestinationType.DATA_URL,
             targetWidth: 1000,
             targetHeight: 1000
         }).then((imageData) => {
@@ -75,34 +78,15 @@ export class StepEditPage {
         });
     }
 
-    takeVideo() {
-        this.camera.getPicture({
-            // Video will  always be returned by FILE_URI
-            destinationType: this.camera.DestinationType.FILE_URI,
-            sourceType: this.camera.PictureSourceType.CAMERA,
-            mediaType: this.camera.MediaType.VIDEO
-
-        }).then((imageData) => {
-            // imageData is a base64 encoded string
-            //
-            // this.base64Video = "data:image/jpeg;base64," + imageData;
-
-        }, (err) => {
-            console.log(err);
-        });
-    }
-
     browseMedia() {
         this.camera.getPicture({
-            // Video will always be returned by FILE_URI
-            destinationType: this.camera.DestinationType.FILE_URI,
+            destinationType: this.camera.DestinationType.DATA_URL,
             sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
-            mediaType: this.camera.MediaType.ALLMEDIA
+            mediaType: this.camera.MediaType.PICTURE
         })
             .then((imageData) => {
-                console.log("We have it!");
+                this.base64Images.push("data:image/jpeg;base64," + imageData);
             })
-            .then(() => this.camera.cleanup())
             .catch(console.log);
     }
 

@@ -55,7 +55,19 @@ export class NativeDB extends DB {
         return this.connectPromise;
     }
 
+    private _tx: Promise<any>;
+
     transaction(executor: (tx: DBTransaction) => any): Promise<any> {
+        this._tx = (this._tx || Promise.resolve())
+            .then(() => this._transaction(executor))
+            .catch(error => {
+                this._tx = null;
+                return error;
+            });
+        return this._tx;
+    }
+
+    private _transaction(executor: (tx: DBTransaction) => any): Promise<any> {
         return Promise.resolve()
             .then(() => this.db.executeSql(`BEGIN TRANSACTION`, []))
             .then(() => executor(this.db))
@@ -87,7 +99,21 @@ export class WebDB extends DB {
         return this.db ? Promise.resolve() : Promise.reject('Something wrong, no DB opened!');
     }
 
+    /*private _tx: Promise<any>;
+
     transaction(executor: (tx: DBTransaction) => any): Promise<any> {
+        this._tx = (this._tx || Promise.resolve())
+            .then(() => this._transaction(executor))
+            .catch(error => {
+                this._tx = null;
+                return error;
+            });
+        return this._tx;
+    }
+
+    private _*/transaction(executor: (tx: DBTransaction) => any): Promise<any> {
+
+
         if (this.intransaction) console.warn('You started transaction within a transaction. ' +
             'This might not work on real device.');
         this.intransaction = true;
