@@ -5,7 +5,11 @@ import {
     NavController,
     NavParams
 } from "ionic-angular";
-import {Step} from "../../providers/data/datatypes";
+import {
+    MediaType,
+    Step,
+    StepDetails
+} from "../../providers/data/datatypes";
 import {RecipesService} from "../../providers/recipes-service";
 import {Observable} from "rxjs/Observable";
 import {Camera} from "@ionic-native/camera";
@@ -25,6 +29,8 @@ export class StepEditPage {
 
     private step: Step;
 
+    public base64Images: string[] = [];
+
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
                 private loadingCtrl: LoadingController,
@@ -34,13 +40,26 @@ export class StepEditPage {
     }
 
     save(value: Step) {
+        let stepDetails: StepDetails = {
+            ...value,
+            media: this.base64Images.map(base64 => {
+                return {
+                    type: MediaType.PHOTO,
+                    content: base64
+                }
+            })
+        };
         let loading = this.loadingCtrl.create({content: 'Saving', dismissOnPageChange: true});
         Observable.fromPromise(loading.present())
-            .flatMap(() => this.recipesService.saveStep(value))
+            .flatMap(() => this.recipesService.saveStep(stepDetails))
             .flatMap(success =>
                 loading.dismiss()
                     .then(() => this.navCtrl.pop())
             ).subscribe();
+    }
+
+    removePicture(index: number) {
+        this.base64Images.splice(index, 1);
     }
 
     takePicture() {
@@ -50,7 +69,7 @@ export class StepEditPage {
             targetHeight: 1000
         }).then((imageData) => {
             // imageData is a base64 encoded string
-            //this.base64Image = "data:image/jpeg;base64," + imageData;
+            this.base64Images.push("data:image/jpeg;base64," + imageData);
         }, (err) => {
             console.log(err);
         });

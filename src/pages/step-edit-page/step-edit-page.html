@@ -1,6 +1,11 @@
 <ion-content>
-    <basic-edit-form [details]="step" (submit)="save($event)" (cancel)="navCtrl.popTo('RecipeEditPage')"></basic-edit-form>
-    <ion-fab #fab bottom right>
+
+    <div class="image-wrap" *ngFor="let base64Image of base64Images">
+        <button class="top right" ion-button icon-only round color="delete" (click)="removePicture(index)"><ion-icon name="close"></ion-icon></button>
+        <img [src]="base64Image"/>
+    </div>
+
+   <ion-fab #fab bottom right *ngIf="!base64Image">
         <button ion-fab color="create"><ion-icon name="images"></ion-icon></button>
         <ion-fab-list side="top">
             <button (click)="takePicture();fab.close()" ion-fab><ion-icon name="camera"></ion-icon></button>
@@ -8,4 +13,5 @@
             <button (click)="browseMedia();fab.close()" ion-fab><ion-icon name="albums"></ion-icon></button>
         </ion-fab-list>
     </ion-fab>
+    <basic-edit-form [details]="step" (submit)="save($event)" (cancel)="navCtrl.popTo('RecipeEditPage')"></basic-edit-form>
 </ion-content>

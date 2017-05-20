@@ -12,6 +12,17 @@ export type Step = BasicArticle & {
     step_number?:number;
 };
 
+export enum MediaType{
+    PHOTO,
+    VIDEO
+}
+export type Media = {id?:number, type: MediaType, content: string};
+
+export type StepDetails = Step & {
+    media?:Media[],
+    knowledge?:Knowledge
+};
+
 export type Knowledge = BasicArticle;
 
 

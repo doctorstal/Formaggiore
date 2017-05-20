@@ -195,3 +195,25 @@ U2Myw0Ny44MjgsMTguMjk4eiIvPgoJPC9nPgo8L2c+Cjwvc3ZnPg==");
   }
 }
 
+.image-wrap {
+  display:inline-block;
+  position:relative;
+  max-width: 49vw;
+  padding: .5vw;
+  .top, .right, .left, .bottom {
+    position: absolute;
+  }
+  $wrap-btn-offset: .5rem;
+  .top {
+    top: $wrap-btn-offset;
+  }
+  .right {
+    right: $wrap-btn-offset;
+  }
+  .bottom {
+    bottom: $wrap-btn-offset;
+  }
+  .left {
+    left: $wrap-btn-offset;
+  }
+}

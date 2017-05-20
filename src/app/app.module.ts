@@ -17,6 +17,7 @@ import {PLATFORM_READY} from "./app.tokens";
 import {dataServiceProviders} from "../providers/data/data.service.provider";
 import {AuthService} from "../providers/auth-service";
 import {Camera} from "@ionic-native/camera";
+import {CameraMock} from "../providers/camera-mock";
 
 @NgModule({
     declarations: [
@@ -37,7 +38,14 @@ import {Camera} from "@ionic-native/camera";
         SplashScreen,
         {provide: ErrorHandler, useClass: IonicErrorHandler},
         AuthService,
-        Camera
+        {
+            provide: Camera, useFactory: (platform: Platform) => {
+            return (platform.is('core') || platform.is('mobileweb')) ?
+                new CameraMock() :
+                new Camera();
+        },
+            deps: [Platform]
+        }
     ]
 })
 export class AppModule {
