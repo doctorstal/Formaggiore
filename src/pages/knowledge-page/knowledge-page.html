@@ -6,6 +6,7 @@
 
 <ion-content>
   <items-list
+          [search]="true"
           [items]="knowledge"
           (openItem)="navCtrl.push('KnowledgeDetailsPage', $event)"
           (editItem)="navCtrl.push('KnowledgeEditPage', $event)"

@@ -5,7 +5,9 @@
 
 </ion-header>
 <ion-content>
+    <ion-title>
     {{details?.description}}
+    </ion-title>
     <ion-card *ngFor="let step of details?.steps">
         <img *ngFor="let m of step.media" [src]="m.content"/>
         <ion-card-content>

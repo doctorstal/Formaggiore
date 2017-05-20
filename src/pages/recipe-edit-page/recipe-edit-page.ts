@@ -12,6 +12,7 @@ import {
     Step
 } from "../../providers/data/datatypes";
 import {Subject} from "rxjs/Subject";
+import {StepsService} from "../../providers/steps-service";
 
 /**
  * Generated class for the RecipeEditPage page.
@@ -32,7 +33,8 @@ export class RecipeEditPage {
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
                 private loadingCtrl: LoadingController,
-                private recipesService: RecipesService) {
+                private recipesService: RecipesService,
+                private stepService: StepsService) {
 
         this.detailsSubject = new Subject();
         this.detailsSubject
@@ -76,7 +78,7 @@ export class RecipeEditPage {
     deleteStep(step: Step) {
         let loading = this.loadingCtrl.create({content: 'Saving recipe'});
         Observable.fromPromise(loading.present())
-            .flatMap(() => this.recipesService.deleteStep(step))
+            .flatMap(() => this.stepService.deleteStep(step))
             .flatMap(success => loading.dismiss())
             .map(() => this.detailsSubject.next())
             .subscribe();

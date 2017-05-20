@@ -15,6 +15,7 @@ import {KnowledgeService} from "../knowledge-service";
 import {DevicesService} from "../devices-service";
 import {MediaService} from "../media-service";
 import {UserService} from "../user-service";
+import {StepsService} from "../steps-service";
 export const dataServiceProviders: Provider[] = [
     SQLite,
     WebDB,
@@ -33,5 +34,6 @@ export const dataServiceProviders: Provider[] = [
     KnowledgeService,
     DevicesService,
     MediaService,
-    UserService
+    UserService,
+    StepsService
 ];

@@ -14,7 +14,7 @@ import {
     selector: 'basic-edit-form',
     template: `
         <div>
-            <form [formGroup]="form">
+            <form [formGroup]="form" (change)="submitOnChange&&submit.emit(form.value)">
                 <ion-list no-lines>
                     <ion-item class="first">
                         <ion-label floating>Title</ion-label>
@@ -27,7 +27,7 @@ import {
                     <ng-content></ng-content>
                 </ion-list>
             </form>
-            <ion-list>
+            <ion-list *ngIf="!submitOnChange">
                 <ion-item>
                     <button ion-button type="button" (click)="cancel.emit()">Cancel</button>
                     <button ion-button type="submit" (click)="submit.emit(form.value)"
@@ -45,6 +45,8 @@ export class BasicEditForm {
         if (value)
             this.form.patchValue({name: value.name, description: value.description, id: value.id});
     }
+
+    @Input() submitOnChange:boolean;
 
     @Output() cancel: EventEmitter<any> = new EventEmitter();
     @Output() submit: EventEmitter<any> = new EventEmitter();

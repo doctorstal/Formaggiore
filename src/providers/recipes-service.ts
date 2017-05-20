@@ -5,10 +5,8 @@ import "rxjs/observable/fromPromise";
 import {DB} from "./data/database/sqlite.implementation";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {
-    Media,
     Recipe,
-    Step,
-    StepDetails
+    Step
 } from "./data/datatypes";
 import {Observable} from "rxjs/Observable";
 
@@ -85,16 +83,7 @@ export class RecipesService {
         )
     }
 
-    deleteStep(step: Step): Observable<boolean> {
-        return this.deleteMediaForStep(step.id)
-            .flatMap(() => this.db.transaction(tx =>
-                tx.executeSql(`DELETE FROM steps
-                    WHERE id = ?`,
-                    [step.id]))
-                .then(() => true)
-                .catch(console.log)
-            )
-    }
+
 
     getSteps(recipe_id: number): Observable<Step[]> {
         return Observable.fromPromise(
@@ -145,70 +134,14 @@ export class RecipesService {
         );
     }
 
-    saveStep(step: StepDetails) {
-        return Observable.fromPromise(
-            this.db.transaction(tx =>
-                tx.executeSql(`UPDATE steps
-                SET name = ?, description = ?
-                WHERE id = ?`, [step.name, step.description, step.id])
-            ).then(console.log.bind(this, "SAVE STEP RESULT: "))
-        ).flatMap(() => this.saveMediaForStep(step.media, step));
-    }
-
-    getStepMedia(step_id: number): Observable<Media[]> {
-        return Observable.fromPromise(
-            this.db.transaction(tx =>
-                tx.executeSql(`SELECT
-                                 medias.id,
-                                 medias.content,
-                                 medias.type_id AS type
-                               FROM medias
-                                 JOIN stepMedias ON medias.id = stepMedias.media_id
-                               WHERE stepMedias.step_id = ?`, [step_id])
-            )
-                .then(data => data.rows)
-                .then(rows => {
-                    console.log(rows);
-
-                    let medias = [];
-                    for (let i = 0; i < rows.length; i++) {
-                        console.log(rows.item(i));
-                        medias.push({...rows.item(i)})
-                    }
-                    return medias;
-                })
-        );
-    }
-
-    deleteMediaForStep(step_id: number): Observable<boolean> {
-        return Observable.fromPromise(
-            this.db.transaction(tx =>
-                tx.executeSql(`DELETE FROM medias
-                WHERE id IN (SELECT media_id
-                             FROM stepMedias
-                             WHERE step_id = ?)`, [step_id])
-                    .then(() => tx.executeSql(`DELETE FROM stepMedias
-                    WHERE step_id = ?`, [step_id]))
-            )
-                .catch(console.log.bind(this, "DELETE MEDIA FOR STEP ERROR: "))
-        )
-    }
 
 
-    // TODO All saving process should be more responsive to user input. When we added media - just add it to DB. When we deleted - just delete.
-    // TODO It would be ideal to remove all 'Save' buttons at all
-    saveMediaForStep(media: Media[], step: Step): Observable<boolean> {
-        return this.deleteMediaForStep(step.id)
-            .flatMap(() =>
-                this.db.transaction(tx =>
-                    media.map(m =>
-                        tx.executeSql(`INSERT INTO medias (type_id, content)
-                        VALUES (?, ?)`, [m.type, m.content])
-                            .then(data => tx.executeSql(`INSERT INTO stepMedias (media_id, step_id)
-                            VALUES (?, ?)`, [data.insertId, step.id]))
-                    ).reduce((prev, curr) => prev.then(() => curr), Promise.resolve())
-                )
-                    .then(() => true)
-            );
-    }
+
+
+
+
+
+
+
+
 }

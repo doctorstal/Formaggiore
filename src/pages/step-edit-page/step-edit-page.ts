@@ -1,18 +1,19 @@
 import {Component} from "@angular/core";
 import {
     IonicPage,
-    LoadingController,
     NavController,
     NavParams
 } from "ionic-angular";
 import {
+    Media,
     MediaType,
-    Step,
-    StepDetails
+    Step
 } from "../../providers/data/datatypes";
-import {RecipesService} from "../../providers/recipes-service";
-import {Observable} from "rxjs/Observable";
-import {Camera} from "@ionic-native/camera";
+import {
+    Camera,
+    CameraOptions
+} from "@ionic-native/camera";
+import {StepsService} from "../../providers/steps-service";
 
 /**
  * Generated class for the StepEditPage page.
@@ -29,65 +30,56 @@ export class StepEditPage {
 
     private step: Step;
 
-    public base64Images: string[] = [];
+    public media: Media[] = [];
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
-                private loadingCtrl: LoadingController,
-                private recipesService: RecipesService,
+                private stepsService: StepsService,
                 private camera: Camera) {
         this.step = navParams.data;
-        this.recipesService.getStepMedia(this.step.id)
-            .map(media => media.map(m => this.base64Images.push(m.content)))
+        this.stepsService.getStepMedia(this.step.id)
+            .map(media => this.media = media)
             .subscribe();
     }
 
     save(value: Step) {
-        let stepDetails: StepDetails = {
-            ...value,
-            media: this.base64Images.map(base64 => {
-                return {
-                    type: MediaType.PHOTO,
-                    content: base64
-                }
-            })
-        };
-        let loading = this.loadingCtrl.create({content: 'Saving', dismissOnPageChange: true});
-        Observable.fromPromise(loading.present())
-            .flatMap(() => this.recipesService.saveStep(stepDetails))
-            .flatMap(success =>
-                loading.dismiss()
-                    .then(() => this.navCtrl.pop())
-            ).subscribe();
+        this.stepsService.saveStepTitleAndDescription(value);
     }
 
     removePicture(index: number) {
-        this.base64Images.splice(index, 1);
+        this.stepsService.removeStepMedia(this.step, this.media.splice(index, 1)[0])
     }
 
     takePicture() {
-        this.camera.getPicture({
+        let options = {
             destinationType: this.camera.DestinationType.DATA_URL,
             targetWidth: 1000,
             targetHeight: 1000
-        }).then((imageData) => {
+        };
+        this.loadPictureToStep(options);
+    }
+
+    private loadPictureToStep(options: CameraOptions) {
+        this.camera.getPicture(options).then((imageData) => {
             // imageData is a base64 encoded string
-            this.base64Images.push("data:image/jpeg;base64," + imageData);
+            let m: Media = {
+                content: "data:image/jpeg;base64," + imageData,
+                type: MediaType.PHOTO
+            };
+            this.media.push(m);
+            this.stepsService.addStepMedia(this.step, m).subscribe();
         }, (err) => {
             console.log(err);
         });
     }
 
     browseMedia() {
-        this.camera.getPicture({
+        let options = {
             destinationType: this.camera.DestinationType.DATA_URL,
             sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
             mediaType: this.camera.MediaType.PICTURE
-        })
-            .then((imageData) => {
-                this.base64Images.push("data:image/jpeg;base64," + imageData);
-            })
-            .catch(console.log);
+        };
+        this.loadPictureToStep(options);
     }
 
     ionViewDidLoad() {

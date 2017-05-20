@@ -2,13 +2,20 @@ import {
     Component,
     EventEmitter,
     Input,
-    Output
+    Output,
+    ViewChild
 } from "@angular/core";
+import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/debounceTime";
+
 @Component({
     selector: 'items-list',
     template: `
         <ion-list>
-            <ion-item-sliding *ngFor="let item of items">
+            <ion-list-header *ngIf="search">
+                <ion-searchbar #searchInput></ion-searchbar>
+            </ion-list-header>
+            <ion-item-sliding *ngFor="let item of filteredItems">
                 <button ion-item (click)="openItem.emit(item)">
                     {{item.name}}
                 </button>
@@ -32,7 +39,8 @@ import {
                 <ion-label floating>{{inlineCreate}}</ion-label>
                 <ion-input type="text" [(ngModel)]="newItemTitle"></ion-input>
             </ion-item>
-            <button type="button" block ion-button icon-only (click)="createInlineItem.emit(newItemTitle); newItemTitle='';">
+            <button type="button" block ion-button icon-only
+                    (click)="createInlineItem.emit(newItemTitle); newItemTitle='';">
                 <ion-icon name="add"></ion-icon>
             </button>
         </ion-card>
@@ -44,7 +52,17 @@ import {
     `
 })
 export class ItemsListComponent {
-    @Input() items;
+    @Input() search: boolean;
+
+    private originalItems: any[];
+    private filteredItems: any[];
+
+    @Input() set items(value: any[]) {
+        this.originalItems = value;
+        this.filteredItems = value;
+    }
+
+
     @Input() inlineCreate: string;
     @Output() openItem: EventEmitter<any> = new EventEmitter();
     @Output() editItem: EventEmitter<any> = new EventEmitter();
@@ -54,5 +72,18 @@ export class ItemsListComponent {
 
     private newItemTitle: string;
 
+    @ViewChild('searchInput') set searchInput(searchInput) {
+        if (searchInput)
+            searchInput.ionChange
+                .map(input => input.value)
+                .distinctUntilChanged()
+                .debounceTime(300)
+                .subscribe(value =>
+                    this.filterItems(value));
+    }
+
+    filterItems(search: string) {
+        this.filteredItems = this.originalItems.filter(item => item.name.toLowerCase().indexOf(search.toLowerCase()) > -1)
+    }
 
 }

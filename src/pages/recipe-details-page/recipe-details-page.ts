@@ -8,6 +8,7 @@ import {RecipeDetails} from "../../providers/data/datatypes";
 import {Subject} from "rxjs/Subject";
 import {RecipesService} from "../../providers/recipes-service";
 import {Observable} from "rxjs/Observable";
+import {StepsService} from "../../providers/steps-service";
 
 
 /**
@@ -27,7 +28,8 @@ export class RecipeDetailsPage {
     private detailsSubject: Subject<any>;
 
     constructor(public navCtrl: NavController, public navParams: NavParams,
-                private recipesService: RecipesService) {
+                private recipesService: RecipesService,
+                private stepService: StepsService) {
         this.detailsSubject = new Subject();
         let getRecipe$ = this.detailsSubject
             .flatMap(() => this.recipesService.getRecipe(this.navParams.data.id));
@@ -41,7 +43,7 @@ export class RecipeDetailsPage {
             .delay(10)
             .flatMap(data =>
                 Observable.forkJoin(data.steps && data.steps.map(step =>
-                        this.recipesService.getStepMedia(step.id))
+                        this.stepService.getStepMedia(step.id))
                 )
             )
             .subscribe(medias => {
