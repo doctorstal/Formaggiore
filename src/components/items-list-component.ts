@@ -5,36 +5,54 @@ import {
     Output
 } from "@angular/core";
 @Component({
-    selector:'items-list',
-    template:`
+    selector: 'items-list',
+    template: `
         <ion-list>
             <ion-item-sliding *ngFor="let item of items">
                 <button ion-item (click)="openItem.emit(item)">
                     {{item.name}}
                 </button>
-                <ion-item-options>
-                    <button ion-button color="success" (click)="editItem.emit(item)">
+                <ion-item-options side="left" icon-left>
+                    <button ion-button color="edit" (click)="editItem.emit(item)">
                         <ion-icon name="create"></ion-icon>
                         Edit
                     </button>
-                    <button ion-button color="danger" (click)="deleteItem.emit(item)">
+                </ion-item-options>
+                <ion-item-options side="right" icon-left>
+                    <button ion-button color="delete" (click)="deleteItem.emit(item)">
                         <ion-icon name="remove-circle"></ion-icon>
                         Delete
                     </button>
                 </ion-item-options>
             </ion-item-sliding>
         </ion-list>
-        <ion-fab right bottom>
+
+        <ion-card *ngIf="inlineCreate">
+            <ion-item>
+                <ion-label floating>{{inlineCreate}}</ion-label>
+                <ion-input type="text" [(ngModel)]="newItemTitle"></ion-input>
+            </ion-item>
+            <button type="button" block ion-button icon-only (click)="createInlineItem.emit(newItemTitle); newItemTitle='';">
+                <ion-icon name="add"></ion-icon>
+            </button>
+        </ion-card>
+        <ion-fab right bottom *ngIf="!inlineCreate">
             <button color="create" ion-fab (click)="createItem.emit()">
-                <ion-icon name="document"></ion-icon>
+                <ion-icon name="add"></ion-icon>
             </button>
         </ion-fab>
-        `
+    `
 })
 export class ItemsListComponent {
     @Input() items;
-    @Output() openItem:EventEmitter<any> = new EventEmitter();
-    @Output() editItem:EventEmitter<any> = new EventEmitter();
-    @Output() deleteItem:EventEmitter<any> = new EventEmitter();
-    @Output() createItem:EventEmitter<any> = new EventEmitter();
+    @Input() inlineCreate: string;
+    @Output() openItem: EventEmitter<any> = new EventEmitter();
+    @Output() editItem: EventEmitter<any> = new EventEmitter();
+    @Output() deleteItem: EventEmitter<any> = new EventEmitter();
+    @Output() createItem: EventEmitter<any> = new EventEmitter();
+    @Output() createInlineItem: EventEmitter<string> = new EventEmitter();
+
+    private newItemTitle: string;
+
+
 }

@@ -21,13 +21,19 @@ $background-color: #fefef0;
 
 $colors: (
         primary: #488aff,
-        secondary: #32db64,
         danger: #f53d3d,
-        light: #f4f4f4,
-        dark: #222,
-        edit: #ffc66d,
-        create: #0df442,
-        delete: #ff7f50,
+        edit: (
+                base: #ffc66d,
+                contrast: #fff
+        ),
+        create:(
+                base: #0df442,
+                contrast: #fff
+        ),
+        delete:(
+                base: #ff7f50,
+                contrast: #fff
+        )
 );
 
 // App iOS Variables

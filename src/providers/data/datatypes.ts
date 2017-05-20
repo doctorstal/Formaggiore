@@ -1,5 +1,5 @@
 type BasicArticle = {
-    id: number;
+    id?: number;
     name: string;
     description: string;
 };
@@ -8,7 +8,9 @@ export type Recipe = BasicArticle & {
     steps?: Step[];
 };
 
-export type Step = BasicArticle;
+export type Step = BasicArticle & {
+    step_number?:number;
+};
 
 export type Knowledge = BasicArticle;
 

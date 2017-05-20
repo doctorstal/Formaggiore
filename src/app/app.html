@@ -7,7 +7,8 @@
                 </p>
                 <p *ngIf="user">
                     Welcome {{ user.name }}!
-                    <button type="button" menuClose ion-button (click)="logout()">Logout</button>
+                    <button type="button" menuClose icon-left ion-button (click)="logout()">
+                        <ion-icon name="log-out"></ion-icon>Logout</button>
                 </p>
                 <p *ngIf="!user">
                     <!--On app menu level we cannot use navPush - it supported only inside ion-nav-->

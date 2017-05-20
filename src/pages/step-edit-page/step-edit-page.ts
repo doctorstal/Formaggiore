@@ -25,9 +25,6 @@ export class StepEditPage {
 
     private step: Step;
 
-    public base64Image: string;
-    public base64Video: string;
-
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
                 private loadingCtrl: LoadingController,
@@ -36,10 +33,10 @@ export class StepEditPage {
         this.step = navParams.data;
     }
 
-    save(value) {
+    save(value: Step) {
         let loading = this.loadingCtrl.create({content: 'Saving', dismissOnPageChange: true});
         Observable.fromPromise(loading.present())
-            .flatMap(() => this.recipesService.save(value))
+            .flatMap(() => this.recipesService.saveStep(value))
             .flatMap(success =>
                 loading.dismiss()
                     .then(() => this.navCtrl.pop())
@@ -48,12 +45,12 @@ export class StepEditPage {
 
     takePicture() {
         this.camera.getPicture({
-            destinationType: this.camera.DestinationType.DATA_URL,
+            destinationType: this.camera.DestinationType.FILE_URI,
             targetWidth: 1000,
             targetHeight: 1000
         }).then((imageData) => {
             // imageData is a base64 encoded string
-            this.base64Image = "data:image/jpeg;base64," + imageData;
+            //this.base64Image = "data:image/jpeg;base64," + imageData;
         }, (err) => {
             console.log(err);
         });

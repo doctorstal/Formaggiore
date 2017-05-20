@@ -5,15 +5,12 @@ import {
     NavController,
     NavParams
 } from "ionic-angular";
-import {
-    FormArray,
-    FormBuilder,
-    FormControl,
-    FormGroup,
-    Validators
-} from "@angular/forms";
 import {Observable} from "rxjs/Observable";
 import {RecipesService} from "../../providers/recipes-service";
+import {
+    Recipe,
+    Step
+} from "../../providers/data/datatypes";
 
 /**
  * Generated class for the RecipeEditPage page.
@@ -28,30 +25,19 @@ import {RecipesService} from "../../providers/recipes-service";
 })
 export class RecipeEditPage {
 
-    recipe: FormGroup;
-    steps: FormArray;
+    private details: Recipe;
+    private details$: Observable<Recipe>;
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
-                private formBuilder: FormBuilder,
                 private loadingCtrl: LoadingController,
                 private recipesService: RecipesService) {
-        let details = navParams.data;
 
-        /* TODO remove*/
-        details.steps = [
-            {id:1, name:'Step1', description:'Put milk on fire'},
-            {id:2, name:'Step2', description:'Wait until it is hot'},
-        ];
+        this.details$ = this.recipesService.getRecipe(this.navParams.data.id)
+            .map(data => this.details = data);
 
-        this.steps = new FormArray([]);
-        details.steps && details.steps.forEach(step => this.steps.push(new FormControl(step)));
-        this.recipe = formBuilder.group({
-            name: [details.name, Validators.required],
-            description: [details.description],
-            id: details.id,
-            steps: this.steps
-        })
+        this.details$.subscribe();
+
 
     }
 
@@ -65,10 +51,32 @@ export class RecipeEditPage {
             ).subscribe();
     }
 
-    test() {
-
+    createStep(title: string) {
+        let step: Step = {
+            name: title, description: '',
+            step_number: this.getNextStepNumber()
+        };
+        let loading = this.loadingCtrl.create({content: 'Saving recipe'});
+        Observable.fromPromise(loading.present())
+            .flatMap(() => this.recipesService.addStep(step, this.details))
+            .map(() => this.details$.subscribe())
+            .flatMap(success => loading.dismiss())
+            .subscribe();
     }
 
+    getNextStepNumber(): number {
+        return this.details && this.details.steps ? this.details.steps.length : 0;
+    }
+
+    deleteStep(step: Step) {
+        let loading = this.loadingCtrl.create({content: 'Saving recipe'});
+        Observable.fromPromise(loading.present())
+            .flatMap(() => this.recipesService.addStep(step, this.details))
+            .map(() => this.details$.subscribe())
+            .flatMap(success => loading.dismiss())
+            .subscribe();
+
+    }
 
     ionViewDidLoad() {
         console.log('ionViewDidLoad RecipeEditPage');

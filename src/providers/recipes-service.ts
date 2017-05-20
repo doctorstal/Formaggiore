@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import "rxjs/add/operator/map";
+import "rxjs/add/operator/toPromise";
 import {DB} from "./data/database/sqlite.implementation";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {
@@ -59,7 +60,6 @@ export class RecipesService {
     }
 
     save(recipe: Recipe) {
-        console.log(recipe);
         return this.db.transaction(
             tx => tx.executeSql(`UPDATE recipes
             SET name = ?, description = ?
@@ -69,11 +69,82 @@ export class RecipesService {
             .then(() => this.getRecipes());
     }
 
-    craeteStep(recipe: Recipe, value: Step):Observable<boolean> {
-        return Observable.create(observer => {
-            recipe.steps = [...recipe.steps, value];
-            observer.next(true);
-            observer.complete();
-        })
+
+    addStep(step: Step, recipe: Recipe): Observable<boolean> {
+        return Observable.create(observer =>
+            this.db.transaction(tx =>
+                tx.executeSql(`INSERT INTO steps
+                    (name, description, step_number, recipe_id) VALUES (?, ?, ?, ?)`,
+                    [step.name, step.description, step.step_number, recipe.id]))
+                .then(() => observer.next(true))
+                .then(() => observer.complete())
+        )
+    }
+
+    getSteps(recipe_id: number): Observable<Step[]> {
+        return Observable.create(observer =>
+            this.db.transaction(tx => tx.executeSql(`
+              SELECT
+                id,
+                name,
+                description,
+                step_number
+              FROM steps
+              WHERE recipe_id = ?
+              ORDER BY step_number
+            `, [recipe_id]))
+                .then(data => data.rows)
+                .then(rows => {
+                    let steps: Step[] = [];
+                    for (let i = 0; i < rows.length; i++) {
+                        steps.push({...rows.item(i)});
+                    }
+                    observer.next(steps);
+                })
+                .then(() => observer.complete())
+                .catch(console.log.bind(this, "GET STEPS ERROR: "))
+        );
+    }
+
+    fillRecipeSteps(recipe: Recipe): Observable<Recipe> {
+        console.log(recipe);
+        return this.getSteps(recipe.id)
+            .map(steps => {
+                return {...recipe, steps: steps}
+            });
+    }
+
+    getRecipe(id: number): Observable<Recipe> {
+        return Observable.create(observer =>
+            this.db.transaction(tx => tx.executeSql(`
+              SELECT
+                id,
+                name,
+                description
+              FROM recipes
+              WHERE id = ?
+            `, [id]))
+                .then(data => data.rows)
+
+                .then(rows => rows.length > 0 ?
+                    this.fillRecipeSteps({...rows.item(0)}).toPromise()
+                    : {}
+                )
+                .then(recipe => observer.next(recipe))
+                .then(() => observer.complete())
+                .catch(console.log.bind(this, "GET RECIPE ERROR"))
+        );
+    }
+
+    saveStep(value: Step) {
+        return Observable.create(observer =>
+            this.db.transaction(tx =>
+                tx.executeSql(`UPDATE steps
+                SET name = ?, value = ?
+                WHERE id = ?`, [value.name, value.description, value.id]))
+                .then(() => observer.next(true))
+                .then(() => observer.complete())
+                .catch(error => observer.error(error))
+        );
     }
 }

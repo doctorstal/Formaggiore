@@ -10,6 +10,7 @@ import {
 } from "ionic-angular";
 import {Recipe} from "../../providers/data/datatypes";
 import {RecipesService} from "../../providers/recipes-service";
+import {Observable} from "rxjs/Observable";
 
 /**
  * Generated class for the RecipesPage page.
@@ -42,6 +43,16 @@ export class RecipesPage {
             .then(() => this.recipesService.deleteRecipe(recipe))
             .then(() => loading.dismiss())
             .catch(error => console.log(error));
+    }
+
+    createRecipe(title:string) {
+        let value: Recipe = {name:title, description:''};
+        let loading = this.loadingCtrl.create({content:'Creating recipe'});
+        Observable.fromPromise(loading.present())
+            .flatMap(() => this.recipesService.createRecipe(value))
+            .flatMap(success => loading.dismiss())
+            .subscribe();
+
     }
 
     ionViewDidLoad() {

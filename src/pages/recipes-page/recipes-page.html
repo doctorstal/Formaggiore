@@ -1,34 +1,17 @@
 <ion-header>
 
-  <ion-navbar>
-    <ion-title>List of saved recipes</ion-title>
-  </ion-navbar>
+    <ion-navbar>
+        <ion-title>List of saved recipes</ion-title>
+    </ion-navbar>
 
 </ion-header>
 
 <ion-content>
-
-  <ion-list>
-    <ion-item-sliding *ngFor="let recipe of recipes" detail-push>
-      <button ion-item (click)="openRecipe(recipe)">
-        Recipe: {{recipe.name}}
-      </button>
-      <ion-item-options>
-        <button ion-button color="success" (click)="editRecipe(recipe)">
-          <ion-icon name="create"></ion-icon>
-          Edit
-        </button>
-        <button ion-button color="danger" (click)="deleteRecipe(recipe)">
-          <ion-icon name="remove-circle"></ion-icon>
-          Delete
-        </button>
-      </ion-item-options>
-    </ion-item-sliding>
-  </ion-list>
-  <ion-fab right bottom>
-    <button ion-fab navPush="RecipeCreatePage">
-      <ion-icon name="document"></ion-icon>
-    </button>
-  </ion-fab>
-
+    <items-list [items]="recipes"
+                inlineCreate="Add Recipe"
+                (createInlineItem)="createRecipe($event)"
+                (openItem)="this.navCtrl.push('RecipeDetailsPage',$event)"
+                (editItem)="this.navCtrl.push('RecipeEditPage',$event)"
+                (deleteItem)="deleteRecipe($event)"
+    ></items-list>
 </ion-content>

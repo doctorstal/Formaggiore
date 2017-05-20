@@ -22,7 +22,7 @@ import {
                     </ion-item>
                     <ion-item>
                         <ion-label floating>Description</ion-label>
-                        <ion-textarea formControlName="description"></ion-textarea>
+                        <ion-textarea fz-elastic formControlName="description"></ion-textarea>
                     </ion-item>
                     <ng-content></ng-content>
                 </ion-list>
@@ -42,7 +42,8 @@ export class BasicEditForm {
     form: FormGroup;
 
     @Input() set details(value: { name: string, description: string, id: number }) {
-        this.form.patchValue({name: value.name, description: value.description, id: value.id});
+        if (value)
+            this.form.patchValue({name: value.name, description: value.description, id: value.id});
     }
 
     @Output() cancel: EventEmitter<any> = new EventEmitter();

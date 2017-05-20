@@ -6,6 +6,10 @@
 </ion-header>
 <ion-content>
     {{details.description}}
+    <ion-card *ngFor="let step of details.steps">
+        <ion-card-header>{{step.name}}</ion-card-header>
+        <ion-card-content>{{step.description}}</ion-card-content>
+    </ion-card>
     <ion-fab right bottom>
         <button color="edit" ion-fab navPush="RecipeEditPage" [navParams]="details">
             <ion-icon name="create"></ion-icon>
