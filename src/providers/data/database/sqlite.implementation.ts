@@ -10,7 +10,13 @@ import {
 } from "@ionic-native/sqlite";
 
 export abstract class DB {
+
+    /**
+     * @param executor callback to execute transaction statements in
+     * @return {Promise<void>} returns result of call to executor
+     */
     abstract transaction(executor: (tx: DBTransaction) => any): Promise<any>;
+
     abstract ready(): Promise<any>;
 }
 
@@ -27,6 +33,10 @@ export class NativeDB extends DB {
                 private errorHandler: ErrorHandler,
                 @Inject(PLATFORM_READY) ready: Promise<void>) {
         super();
+        // log in cordova invokes toString - [Object object] is not informative enough. JSON.stringify can help a little
+        let _log = console.log;
+        console.log = (message?: any, ...optionalParams: any[]) => _log(JSON.stringify(message), ...optionalParams);
+
         this.connectPromise = ready.then(() => this.connect());
     }
 
@@ -49,7 +59,15 @@ export class NativeDB extends DB {
         return Promise.resolve()
             .then(() => this.db.executeSql(`BEGIN TRANSACTION`, []))
             .then(() => executor(this.db))
-            .then(() => this.db.executeSql(`COMMIT `, []));
+            .then(data => this.db.executeSql(`COMMIT `, [])
+                .then(() => data))
+            .catch(error => {
+                console.log("Rolling back.");
+                console.log(error);
+                //return this.db.executeSql(`ROLLBACK`, [])
+                //    .then(() => Promise.reject(error));
+                return Promise.reject(error);
+            });
     }
 
 }
@@ -58,6 +76,7 @@ export class NativeDB extends DB {
 export class WebDB extends DB {
 
     private db: Database;
+    private intransaction: boolean;
 
     constructor() {
         super();
@@ -65,18 +84,33 @@ export class WebDB extends DB {
     }
 
     ready(): Promise<any> {
-        return this.db ? Promise.resolve() : Promise.reject("Something wrong, no DB opened!");
+        return this.db ? Promise.resolve() : Promise.reject('Something wrong, no DB opened!');
     }
 
     transaction(executor: (tx: DBTransaction) => any): Promise<any> {
+        if (this.intransaction) console.warn('You started transaction within a transaction. ' +
+            'This might not work on real device.');
+        this.intransaction = true;
+        let result;
         return new Promise((resolve, reject) =>
-            this.db.transaction(tx => executor(this.wrap(tx)), reject, resolve));
+            this.db.transaction(
+                tx => executor(this.wrap(tx))
+                    .then(data => result = data),
+                (error) => {
+                    this.intransaction = false;
+                    reject(error);
+                },
+                () => {
+                    this.intransaction = false;
+                    resolve(result);
+                })
+        );
     }
 
     wrap(tx: SQLTransaction): DBTransaction {
         return {
             executeSql: (statement: string, params: any) => {
-                let promise = new Promise((resolve, reject) => {
+                return new Promise((resolve, reject) => {
                     tx.executeSql(statement, params,
                         (t, result) => resolve(result),
                         (t, error) => {
@@ -84,7 +118,6 @@ export class WebDB extends DB {
                             return false;
                         });
                 });
-                return promise;
             }
         };
     }

@@ -1,0 +1,31 @@
+<ion-content>
+
+    <form [formGroup]="recipe">
+        <ion-list no-lines>
+            <ion-item class="first">
+                <ion-label floating>Title</ion-label>
+                <ion-input type="text" formControlName="name"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label floating>Description</ion-label>
+                <ion-textarea formControlName="description"></ion-textarea>
+            </ion-item>
+
+        </ion-list> <items-list
+            [items]="users"
+            (openItem)="navCtrl.push('StepDetailsPage', $event)"
+            (editItem)="navCtrl.push('StepEditPage', $event)"
+            (deleteItem)="deleteItem($event)"
+            (createItem)="navCtrl.push('StepCreatePage')"
+    ></items-list>
+        <ion-list>
+            <ion-item>
+                <button ion-button type="button" (click)="navCtrl.pop()">Cancel</button>
+                <button ion-button type="submit" (click)="saveRecipe()" [disabled]="!recipe.valid">
+                    Save
+                </button>
+            </ion-item>
+        </ion-list>
+    </form>
+</ion-content>
+<ion-footer>

@@ -1,0 +1,13 @@
+<ion-header>
+    <ion-navbar>
+        <ion-title>{{details.name}}</ion-title>
+    </ion-navbar>
+</ion-header>
+<ion-content>
+    {{details.description}}
+    <ion-fab right bottom>
+        <button color="edit" ion-fab navPush="KnowledgeEditPage" [navParams]="details">
+            <ion-icon name="create"></ion-icon>
+        </button>
+    </ion-fab>
+</ion-content>

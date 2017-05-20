@@ -1,11 +1,15 @@
-import {Component} from "@angular/core";
+import {
+    ChangeDetectionStrategy,
+    Component
+} from "@angular/core";
 import {
     IonicPage,
+    LoadingController,
     NavController,
     NavParams
 } from "ionic-angular";
-import {DataService} from "../../providers/data/data.service";
 import {Recipe} from "../../providers/data/datatypes";
+import {RecipesService} from "../../providers/recipes-service";
 
 /**
  * Generated class for the RecipesPage page.
@@ -17,17 +21,27 @@ import {Recipe} from "../../providers/data/datatypes";
 @Component({
     selector: 'page-recipes-page',
     templateUrl: 'recipes-page.html',
+    changeDetection: ChangeDetectionStrategy.Default
 })
 export class RecipesPage {
-    private recipes: Recipe[];
+    private recipes: Recipe[] = [];
 
     constructor(public navCtrl: NavController,
-                private dataService: DataService,
-                public navParams: NavParams) {
-        dataService.recipes$.subscribe((res) => {
+                private recipesService: RecipesService,
+                public navParams: NavParams,
+                private loadingCtrl: LoadingController) {
+        recipesService.recipes$.subscribe((res) => {
             console.log(res);
             this.recipes = res;
         });
+    }
+
+    deleteRecipe(recipe) {
+        let loading = this.loadingCtrl.create({dismissOnPageChange:true, content:'Deleting'});
+        loading.present()
+            .then(() => this.recipesService.deleteRecipe(recipe))
+            .then(() => loading.dismiss())
+            .catch(error => console.log(error));
     }
 
     ionViewDidLoad() {

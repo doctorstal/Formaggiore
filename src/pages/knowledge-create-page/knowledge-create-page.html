@@ -1,0 +1,8 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Create a knowledge</ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <basic-edit-form (submit)="createItem($event)" (cancel)="navCtrl.popTo('KnowledgePage')"></basic-edit-form>
+</ion-content>

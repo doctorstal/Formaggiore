@@ -1,0 +1,14 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Registered users</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <items-list [items]="userService.users$ | async"
+              (openItem)="navCtrl.push('UserDetailsPage', $event)"
+              (editItem)="navCtrl.push('UserEditPage', $event)"
+              (createItem)="navCtrl.push('RegisterPage')"
+              (deleteItem)="deleteItem($event)"
+  ></items-list>
+</ion-content>

@@ -22,3 +22,21 @@ ion-content {
 .login-box {
   padding-top: 5em;
 }
+
+.menu-title {
+  text-align: right;
+  background: url("assets/img/cheese1600.png");
+  background-size: 100%;
+  height: 20vmax;
+  div {
+    color: white;
+    background: rgba(0, 0, 0, .25);
+    padding: .5em;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+textarea {
+  height: 60vmax;
+}

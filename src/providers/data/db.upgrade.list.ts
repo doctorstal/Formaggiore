@@ -56,7 +56,7 @@ list[0] = transaction => {
         .then(() => transaction.executeSql(`INSERT INTO roles (id, name)
         VALUES (?, ?)`, [3, 'Intern']))
         .then(() => transaction.executeSql(`INSERT INTO users (id, login, name, password_hash)
-        VALUES (?, ?, ?, ?)`, [1, 'admin', '', 'f6fdffe48c908deb0f4c3bd36c032e72'])) // Default is admin/admin
+        VALUES (?, ?, ?, ?)`, [1, 'admin', 'Admin', 'f6fdffe48c908deb0f4c3bd36c032e72'])) // Default is admin/admin
         .then(() => transaction.executeSql(`INSERT INTO userRoles (user_id, role_id)
         VALUES (?, ?)`, [1, 1]))
 };

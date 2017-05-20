@@ -6,10 +6,29 @@
 
 </ion-header>
 
-<ion-content padding>
+<ion-content>
 
   <ion-list>
-    <ion-item *ngFor="let recipe of recipes">Recipe: {{recipe.name}}</ion-item>
+    <ion-item-sliding *ngFor="let recipe of recipes" detail-push>
+      <button ion-item (click)="openRecipe(recipe)">
+        Recipe: {{recipe.name}}
+      </button>
+      <ion-item-options>
+        <button ion-button color="success" (click)="editRecipe(recipe)">
+          <ion-icon name="create"></ion-icon>
+          Edit
+        </button>
+        <button ion-button color="danger" (click)="deleteRecipe(recipe)">
+          <ion-icon name="remove-circle"></ion-icon>
+          Delete
+        </button>
+      </ion-item-options>
+    </ion-item-sliding>
   </ion-list>
+  <ion-fab right bottom>
+    <button ion-fab navPush="RecipeCreatePage">
+      <ion-icon name="document"></ion-icon>
+    </button>
+  </ion-fab>
 
 </ion-content>

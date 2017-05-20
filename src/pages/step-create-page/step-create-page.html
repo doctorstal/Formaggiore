@@ -1,0 +1,9 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Create step for recipe "{{ recipe.name }}"</ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <basic-edit-form (submit)="createStep($event)" (cancel)="navCtrl.pop()"></basic-edit-form>
+</ion-content>

@@ -13,10 +13,10 @@ import {SplashScreen} from "@ionic-native/splash-screen";
 import {StatusBar} from "@ionic-native/status-bar";
 
 import {MyApp} from "./app.component";
-import {SQLite} from "@ionic-native/sqlite";
 import {PLATFORM_READY} from "./app.tokens";
 import {dataServiceProviders} from "../providers/data/data.service.provider";
 import {AuthService} from "../providers/auth-service";
+import {Camera} from "@ionic-native/camera";
 
 @NgModule({
     declarations: [
@@ -33,11 +33,11 @@ import {AuthService} from "../providers/auth-service";
     providers: [
         {provide: PLATFORM_READY, useFactory: (platform) => platform.ready(), deps: [Platform]},
         ...dataServiceProviders,
-        SQLite,
         StatusBar,
         SplashScreen,
         {provide: ErrorHandler, useClass: IonicErrorHandler},
-        AuthService
+        AuthService,
+        Camera
     ]
 })
 export class AppModule {

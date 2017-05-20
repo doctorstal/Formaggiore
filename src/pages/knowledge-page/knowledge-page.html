@@ -1,0 +1,17 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Did you know?</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <items-list
+          [items]="knowledge"
+          (openItem)="navCtrl.push('KnowledgeDetailsPage', $event)"
+          (editItem)="navCtrl.push('KnowledgeEditPage', $event)"
+          (deleteItem)="deleteItem($event)"
+          (createItem)="navCtrl.push('KnowledgeCreatePage')"
+  ></items-list>
+
+
+</ion-content>

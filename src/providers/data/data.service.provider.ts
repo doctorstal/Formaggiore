@@ -9,7 +9,14 @@ import {
     NativeDB,
     WebDB
 } from "./database/sqlite.implementation";
+import {RecipesService} from "../recipes-service";
+import {SQLite} from "@ionic-native/sqlite";
+import {KnowledgeService} from "../knowledge-service";
+import {DevicesService} from "../devices-service";
+import {MediaService} from "../media-service";
+import {UserService} from "../user-service";
 export const dataServiceProviders: Provider[] = [
+    SQLite,
     WebDB,
     NativeDB,
     {
@@ -21,5 +28,10 @@ export const dataServiceProviders: Provider[] = [
         },
         deps: [Platform, Injector]
     },
-    DataService
+    DataService,
+    RecipesService,
+    KnowledgeService,
+    DevicesService,
+    MediaService,
+    UserService
 ];

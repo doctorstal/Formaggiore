@@ -4,6 +4,7 @@ import {
     NavController,
     NavParams
 } from "ionic-angular";
+import {Recipe} from "../../providers/data/datatypes";
 
 /**
  * Generated class for the RecipeDetailsPage page.
@@ -13,16 +14,18 @@ import {
  */
 @IonicPage()
 @Component({
-  selector: 'page-recipe-details-page',
-  templateUrl: 'recipe-details-page.html',
+    selector: 'page-recipe-details-page',
+    templateUrl: 'recipe-details-page.html',
 })
 export class RecipeDetailsPage {
+    details:Recipe;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
-  }
+    constructor(public navCtrl: NavController, public navParams: NavParams) {
+        this.details = navParams.data;
+    }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad RecipeDetailsPage');
-  }
+    ionViewDidLoad() {
+        console.log('ionViewDidLoad RecipeDetailsPage');
+    }
 
 }

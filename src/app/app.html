@@ -1,1 +1,28 @@
-<ion-nav [root]="rootPage"></ion-nav>
+<ion-menu [content]="content">
+    <ion-header>
+        <div class="menu-title">
+            <div>
+                <p>
+                    Make a cheese with Formaggiore!
+                </p>
+                <p *ngIf="user">
+                    Welcome {{ user.name }}!
+                    <button type="button" menuClose ion-button (click)="logout()">Logout</button>
+                </p>
+                <p *ngIf="!user">
+                    <!--On app menu level we cannot use navPush - it supported only inside ion-nav-->
+                    <button type="button" menuClose ion-button (click)="goToLogin()">Login</button>
+                </p>
+            </div>
+        </div>
+    </ion-header>
+    <ion-content>
+        <ion-list>
+            <button menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)">
+                {{p.title}}
+            </button>
+        </ion-list>
+    </ion-content>
+
+</ion-menu>
+<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>
