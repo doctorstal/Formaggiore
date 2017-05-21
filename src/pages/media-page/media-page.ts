@@ -4,6 +4,7 @@ import {
     NavController,
     NavParams
 } from "ionic-angular";
+import {MediaService} from "../../providers/media-service";
 
 /**
  * Generated class for the MediaPage page.
@@ -13,16 +14,21 @@ import {
  */
 @IonicPage()
 @Component({
-  selector: 'page-media-page',
-  templateUrl: 'media-page.html',
+    selector: 'page-media-page',
+    templateUrl: 'media-page.html',
 })
 export class MediaPage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
-  }
+    constructor(public navCtrl: NavController,
+                public navParams: NavParams,
+                private mediaService: MediaService) {
+    }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad MediaPage');
-  }
+    ionViewDidLoad() {
+        console.log('ionViewDidLoad MediaPage');
+    }
+    removeMedia(id:number) {
+        this.mediaService.removeMedia(id);
+    }
 
 }
