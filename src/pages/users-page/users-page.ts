@@ -13,11 +13,12 @@ import {UserService} from "../../providers/user-service";
     templateUrl: 'users-page.html',
 })
 export class UsersPage {
-
+    users: User[];
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
                 private userService: UserService) {
+        userService.users$.subscribe(users => this.users = users);
     }
 
     ionViewDidLoad() {

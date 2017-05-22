@@ -21,7 +21,16 @@ export abstract class DB {
 }
 
 export abstract class DBTransaction {
-    abstract executeSql(statement: string, params: any): Promise<any>;
+    abstract executeSql(statement: string, params: any): Promise<DBResultSet>;
+}
+
+export function rowsAsArray(data:DBResultSet) {
+    let arr = [];
+    for (let i = 0; i < data.rows.length; i++) arr.push(data.rows.item(i))
+    return arr;
+}
+
+export interface DBResultSet extends SQLResultSet {
 }
 
 @Injectable()
@@ -101,17 +110,18 @@ export class WebDB extends DB {
 
     /*private _tx: Promise<any>;
 
-    transaction(executor: (tx: DBTransaction) => any): Promise<any> {
-        this._tx = (this._tx || Promise.resolve())
-            .then(() => this._transaction(executor))
-            .catch(error => {
-                this._tx = null;
-                return error;
-            });
-        return this._tx;
-    }
+     transaction(executor: (tx: DBTransaction) => any): Promise<any> {
+     this._tx = (this._tx || Promise.resolve())
+     .then(() => this._transaction(executor))
+     .catch(error => {
+     this._tx = null;
+     return error;
+     });
+     return this._tx;
+     }
 
-    private _*/transaction(executor: (tx: DBTransaction) => any): Promise<any> {
+     private _*/
+    transaction(executor: (tx: DBTransaction) => any): Promise<any> {
 
 
         if (this.intransaction) console.warn('You started transaction within a transaction. ' +

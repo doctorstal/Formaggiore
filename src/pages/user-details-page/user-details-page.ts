@@ -4,6 +4,8 @@ import {
     NavController,
     NavParams
 } from "ionic-angular";
+import {UserDetails} from "../../providers/data/datatypes";
+import {UserService} from "../../providers/user-service";
 
 /**
  * Generated class for the UserDetailsPage page.
@@ -13,16 +15,22 @@ import {
  */
 @IonicPage()
 @Component({
-  selector: 'page-user-details-page',
-  templateUrl: 'user-details-page.html',
+    selector: 'page-user-details-page',
+    templateUrl: 'user-details-page.html',
 })
 export class UserDetailsPage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
-  }
+    user: UserDetails;
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad UserDetailsPage');
-  }
+    constructor(public navCtrl: NavController,
+                public navParams: NavParams,
+                private userService: UserService) {
+        this.user = navParams.data;
+    }
+
+    ionViewWillEnter() {
+        this.userService.getUserDetails(this.user.id)
+            .subscribe(userDetails => this.user = userDetails)
+    }
 
 }

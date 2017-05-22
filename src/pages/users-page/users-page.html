@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content>
-  <items-list [items]="userService.users$ | async"
+  <items-list [items]="users"
               (openItem)="navCtrl.push('UserDetailsPage', $event)"
               (editItem)="navCtrl.push('UserEditPage', $event)"
               (createItem)="navCtrl.push('RegisterPage')"

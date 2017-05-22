@@ -5,20 +5,30 @@
 </ion-header>
 <ion-content>
 
-    <div class="image-wrap" *ngFor="let m of media">
-        <button class="top right" ion-button icon-only round color="delete" (click)="removePicture(index)"><ion-icon name="close"></ion-icon></button>
+    <div class="image-wrap ion-item" *ngFor="let m of media">
+        <button class="top right" ion-button icon-only round color="delete"
+                (click)="removePicture(index)">
+            <ion-icon name="close"></ion-icon>
+        </button>
         <img [src]="m.content"/>
     </div>
 
-   <ion-fab #fab bottom right >
-        <button ion-fab color="create"><ion-icon name="images"></ion-icon></button>
+    <ion-fab #fab bottom right>
+        <button ion-fab color="create">
+            <ion-icon name="images"></ion-icon>
+        </button>
         <ion-fab-list side="top">
-            <button (click)="takePicture();fab.close()" ion-fab><ion-icon name="camera"></ion-icon></button>
+            <button (click)="takePicture();fab.close()" ion-fab>
+                <ion-icon name="camera"></ion-icon>
+            </button>
             <!-- Not supported yet
             <button (click)="takeVideo();fab.close()" ion-fab><ion-icon name="videocam"></ion-icon></button>
             -->
-            <button (click)="browseMedia();fab.close()" ion-fab><ion-icon name="albums"></ion-icon></button>
+            <button (click)="browseMedia();fab.close()" ion-fab>
+                <ion-icon name="albums"></ion-icon>
+            </button>
         </ion-fab-list>
     </ion-fab>
-    <basic-edit-form [details]="step" [submitOnChange]="true" (submit)="save($event)"></basic-edit-form>
+    <basic-edit-form [details]="step" [submitOnChange]="true"
+                     (submit)="save($event)"></basic-edit-form>
 </ion-content>

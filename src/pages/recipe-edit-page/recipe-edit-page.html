@@ -1,3 +1,10 @@
+<ion-header>
+
+    <ion-navbar>
+        <ion-title>Edit recipe</ion-title>
+    </ion-navbar>
+
+</ion-header>
 <ion-content>
     <basic-edit-form [details]="details" (submit)="saveRecipe($event)" (cancel)="navCtrl.pop()"></basic-edit-form>
     <div>
