@@ -8,16 +8,14 @@
 
 <ion-content>
 
-    <ion-list>
-        <ion-item  *ngFor="let m of mediaService.media$ | async">
-            <div class="image-wrap">
+    <ion-card *ngFor="let m of media">
+        <div class="image-wrap">
             <button class="top right" ion-button icon-only round color="delete"
                     (click)="removeMedia(m.id)">
                 <ion-icon name="close"></ion-icon>
             </button>
             <img [src]="m.content"/>
-            </div>
-        </ion-item>
-    </ion-list>
+        </div>
+    </ion-card>
 
 </ion-content>
