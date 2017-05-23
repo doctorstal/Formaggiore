@@ -56,10 +56,17 @@ export class ItemsListComponent {
 
     private originalItems: any[];
     private filteredItems: any[];
+    private itemsIndexedContent: string[];
 
     @Input() set items(value: any[]) {
         this.originalItems = value;
         this.filteredItems = value;
+        this.itemsIndexedContent = value.map(item =>
+            Object.keys(item).reduce((prev, key) =>
+                prev + '\n' +
+                key + ':' + String(item[key]).toLowerCase(),
+                '')
+        )
     }
 
 
@@ -83,7 +90,9 @@ export class ItemsListComponent {
     }
 
     filterItems(search: string) {
-        this.filteredItems = this.originalItems.filter(item => item.name.toLowerCase().indexOf(search.toLowerCase()) > -1)
+        let searchString = search.toLowerCase();
+        this.filteredItems = this.originalItems.filter((_, i) =>
+        this.itemsIndexedContent[i].indexOf(searchString) > -1)
     }
 
 }

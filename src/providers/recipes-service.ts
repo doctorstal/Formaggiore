@@ -21,7 +21,7 @@ export class RecipesService {
 
 
     constructor(public db: DB) {
-        this.getRecipes();
+        this.fetchRecipes();
     }
 
     createRecipe(recipe: Recipe): Observable<boolean> {
@@ -32,14 +32,14 @@ export class RecipesService {
             )
                 .then(() => observer.next(true))
                 .then(() => observer.complete())
-                .then(() => this.getRecipes())
+                .then(() => this.fetchRecipes())
                 .catch(observer.error)
         );
     }
 
 
     // TODO I guess we should stick to Observable design here these methods should be refactored
-    private getRecipes(): Promise<any> {
+    private fetchRecipes(): Promise<any> {
         return this.db.transaction(
             tx => tx.executeSql(`SELECT *
                                  FROM recipes`, [])
@@ -53,7 +53,7 @@ export class RecipesService {
             tx => tx.executeSql(`DELETE FROM recipes
             WHERE id = ?`, [recipe.id])
         )
-            .then(() => this.getRecipes());
+            .then(() => this.fetchRecipes());
     }
 
     save(recipe: Recipe): Promise<any> {
@@ -63,7 +63,7 @@ export class RecipesService {
             WHERE id = ?`, [recipe.name, recipe.description, recipe.id])
         )
             .then(data => console.log(data))
-            .then(() => this.getRecipes());
+            .then(() => this.fetchRecipes());
     }
 
 

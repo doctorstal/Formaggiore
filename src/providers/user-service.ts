@@ -18,25 +18,23 @@ import {AuthService} from "./auth-service";
 @Injectable()
 export class UserService {
 
-    private users: BehaviorSubject<User[]> = new BehaviorSubject([
-        {id: 0, name: 'Did you know?', description: 'Your princes is in another castle'}
-    ]);
+    private users: BehaviorSubject<User[]> = new BehaviorSubject([]);
     users$: Observable<User[]>;
 
     private user: User;
 
     constructor(public db: DB, private authService: AuthService) {
         this.users$ = this.users.asObservable();
-        this.users$.subscribe(console.log.bind(null, "Users: "));
 
         this.authService.currentUser$.subscribe((user) => {
             this.user = user;
-            this.fetchUsers();
         });
+        this.fetchUsers();
+
     }
 
-    private fetchUsers() {
-        this.db.transaction(tx => tx.executeSql(`SELECT
+    private fetchUsers():Promise<any> {
+        return this.db.transaction(tx => tx.executeSql(`SELECT
                                                    u.name  AS name,
                                                    u.id    AS id,
                                                    d.email AS email
@@ -66,8 +64,9 @@ export class UserService {
                             [Role.INTERN,data.insertId]
                         )
                     ]))
-                    .then(()=>true)
             )
+                .then(this.fetchUsers.bind(this))
+                .then(()=>true)
         );
     }
 
@@ -87,18 +86,22 @@ export class UserService {
                     [user.role, user.id]
                 ),
             ]))
+                .then(this.fetchUsers.bind(this))
                 .then(() => true)
         );
     }
 
     deleteItem(item: User): Observable<boolean> {
-        return Observable.create(observer => {
-            this.users.next(
-                this.users.getValue()
-                    .filter(itemInList => itemInList.id != item.id));
-            observer.next(true);
-            observer.complete();
-        });
+        return Observable.fromPromise(
+            this.db.transaction(tx =>
+                tx.executeSql(
+                    `DELETE FROM users WHERE id=?`,
+                    [item.id]
+                )
+            )
+                .then(this.fetchUsers.bind(this))
+                .then(() => true)
+        );
     }
 
     getUserDetails(id: number): Observable<UserDetails> {
