@@ -20,12 +20,13 @@
                 <ion-input type="text" formControlName="email"></ion-input>
             </ion-item>
             <ion-item>
-                <ion-label stacked>Role
-                <select  formControlName="role">
-                    <option value="1">Manager</option>
-                    <option value="2">Employee</option>
-                    <option value="3">Intern</option>
-                </select></ion-label>
+                <!-- TODO When ionic team will fix ion-select to trigger form.change event - remove ionChange event handler -->
+                <ion-label stacked>Role</ion-label>
+                <ion-select interface="popover" formControlName="role" (ionChange)="saveUser(form.value)">
+                    <ion-option value="1">Manager</ion-option>
+                    <ion-option value="2">Employee</ion-option>
+                    <ion-option value="3">Intern</ion-option>
+                </ion-select>
             </ion-item>
             <ion-item>
                 <button ion-button block type="button" (click)="resetPassword()">Reset user password</button>
