@@ -13,9 +13,9 @@ export abstract class DB {
 
     /**
      * @param executor callback to execute transaction statements in
-     * @return {Promise<void>} returns result of call to executor
+     * @return {Promise<T>} returns result of call to executor
      */
-    abstract transaction(executor: (tx: DBTransaction) => any): Promise<any>;
+    abstract transaction<T>(executor: (tx: DBTransaction) => T|Promise<T>): Promise<T>;
 
     abstract ready(): Promise<any>;
 }
@@ -24,7 +24,7 @@ export abstract class DBTransaction {
     abstract executeSql(statement: string, params: any): Promise<DBResultSet>;
 }
 
-export function rowsAsArray(data:DBResultSet) {
+export function rowsAsArray(data:DBResultSet):any[] {
     let arr = [];
     for (let i = 0; i < data.rows.length; i++) arr.push(data.rows.item(i))
     return arr;

@@ -2,7 +2,10 @@ import {Injectable} from "@angular/core";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/toPromise";
 import "rxjs/observable/fromPromise";
-import {DB} from "./data/database/sqlite.implementation";
+import {
+    DB,
+    rowsAsArray
+} from "./data/database/sqlite.implementation";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {
     Recipe,
@@ -41,16 +44,8 @@ export class RecipesService {
             tx => tx.executeSql(`SELECT *
                                  FROM recipes`, [])
         )
-            .then(data => data.rows)
-            .then(rows => {
-                let recipes: Recipe[] = [];
-                for (let i = 0; i < rows.length; i++) {
-                    let item = rows.item(i);
-                    recipes.push({...item});
-                }
-                this.recipes.next(recipes);
-                console.log(recipes);
-            });
+            .then(data => rowsAsArray(data))
+            .then(recipes => this.recipes.next(recipes))
     }
 
     deleteRecipe(recipe: Recipe): Promise<any> {
@@ -97,14 +92,7 @@ export class RecipesService {
               WHERE recipe_id = ?
               ORDER BY step_number
             `, [recipe_id]))
-                .then(data => data.rows)
-                .then(rows => {
-                    let steps: Step[] = [];
-                    for (let i = 0; i < rows.length; i++) {
-                        steps.push({...rows.item(i)});
-                    }
-                    return steps;
-                })
+                .then(data => rowsAsArray(data))
                 .catch(console.log.bind(this, "GET STEPS ERROR: "))
         );
     }
@@ -117,6 +105,7 @@ export class RecipesService {
     }
 
     getRecipe(id: number): Observable<Recipe> {
+        // TODO ok, this can be done like in UserService. Check that out and refactor.
         return Observable.fromPromise(
             this.db.transaction(tx => tx.executeSql(`
               SELECT

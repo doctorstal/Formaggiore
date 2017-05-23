@@ -1,6 +1,9 @@
 import {Injectable} from "@angular/core";
 import "rxjs/add/operator/map";
-import {DB} from "./data/database/sqlite.implementation";
+import {
+    DB,
+    rowsAsArray
+} from "./data/database/sqlite.implementation";
 import {Observable} from "rxjs/Observable";
 import {
     Media,
@@ -33,7 +36,9 @@ export class StepsService {
                 tx.executeSql(`UPDATE steps
                 SET name = ?, description = ?
                 WHERE id = ?`, [step.name, step.description, step.id])
-            ).then(console.log.bind(this, "SAVE STEP RESULT: "))
+            )
+                .then(console.log.bind(this, "SAVE STEP RESULT: "))
+                .then(() => true)
         )
     }
 
@@ -61,7 +66,6 @@ export class StepsService {
     }
 
 
-
     deleteMediaForStep(step_id: number): Observable<boolean> {
         return Observable.fromPromise(
             this.db.transaction(tx =>
@@ -72,6 +76,7 @@ export class StepsService {
                     .then(() => tx.executeSql(`DELETE FROM stepMedias
                     WHERE step_id = ?`, [step_id]))
             )
+                .then(() => true)
                 .catch(console.log.bind(this, "DELETE MEDIA FOR STEP ERROR: "))
         )
     }
@@ -87,14 +92,7 @@ export class StepsService {
                                  JOIN stepMedias ON medias.id = stepMedias.media_id
                                WHERE stepMedias.step_id = ?`, [step_id])
             )
-                .then(data => data.rows)
-                .then(rows => {
-                    let medias = [];
-                    for (let i = 0; i < rows.length; i++) {
-                        medias.push({...rows.item(i)})
-                    }
-                    return medias;
-                })
+                .then(data => rowsAsArray(data))
         );
     }
 }

@@ -19,15 +19,15 @@ import "rxjs/add/operator/debounceTime";
                 <button ion-item (click)="openItem.emit(item)">
                     {{item.name}}
                 </button>
-                <ion-item-options side="left" icon-left>
+                <ion-item-options side="right" icon-left>
                     <button ion-button color="edit" (click)="editItem.emit(item)">
                         <ion-icon name="create"></ion-icon>
                         Edit
                     </button>
                 </ion-item-options>
-                <ion-item-options side="right" icon-left>
+                <ion-item-options side="left" icon-left>
                     <button ion-button color="delete" (click)="deleteItem.emit(item)">
-                        <ion-icon name="remove-circle"></ion-icon>
+                        <ion-icon name="trash"></ion-icon>
                         Delete
                     </button>
                 </ion-item-options>
