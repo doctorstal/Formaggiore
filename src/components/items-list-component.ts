@@ -56,17 +56,13 @@ export class ItemsListComponent {
 
     private originalItems: any[];
     private filteredItems: any[];
-    private itemsIndexedContent: string[];
+    private itemsIndexedContent: string[] = [];
+    private indexInvalid: boolean;
 
     @Input() set items(value: any[]) {
         this.originalItems = value;
         this.filteredItems = value;
-        this.itemsIndexedContent = value.map(item =>
-            Object.keys(item).reduce((prev, key) =>
-                prev + '\n' +
-                key + ':' + String(item[key]).toLowerCase(),
-                '')
-        )
+        this.indexInvalid = true;
     }
 
 
@@ -89,10 +85,26 @@ export class ItemsListComponent {
                     this.filterItems(value));
     }
 
+
+    updateIndex(): void {
+        if (this.indexInvalid) {
+            this.itemsIndexedContent = this.originalItems.map(item =>
+                Object.keys(item).reduce((prev, key) =>
+                    prev + '\n' +
+                    key + ':' + String(item[key]).toLowerCase(),
+                    '')
+            )
+            this.indexInvalid = false;
+        }
+    }
+
     filterItems(search: string) {
+        this.updateIndex();
         let searchString = search.toLowerCase();
-        this.filteredItems = this.originalItems.filter((_, i) =>
-        this.itemsIndexedContent[i].indexOf(searchString) > -1)
+        this.filteredItems = this.originalItems.filter(
+            (_, i) => this.itemsIndexedContent[i] &&
+            this.itemsIndexedContent[i].indexOf(searchString) > -1
+        );
     }
 
 }
