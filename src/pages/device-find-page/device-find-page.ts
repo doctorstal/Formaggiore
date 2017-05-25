@@ -21,6 +21,8 @@ export class DeviceFindPage {
     status: string = 'Ready';
     devices: any[] = [];
 
+    received: string;
+
     searchUnpaired = false; // Unsupported yet
 
 
@@ -50,8 +52,10 @@ export class DeviceFindPage {
             .then(() => refresher && refresher.complete());
     }
 
-    connect(d: { name: string, address: string, id: string, class: number }) {
-        // this.bt.connect(d.address)
+    connect(d: { name: string, id: string}) {
+        this.bt.connect(d.id)
+            .flatMap(() =>this.bt.subscribeRawData())
+            .subscribe(data => this.received += new Uint8Array(data));
     }
 
 }

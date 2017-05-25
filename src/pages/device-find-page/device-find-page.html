@@ -25,12 +25,11 @@
         <button ion-item *ngFor="let d of devices" (click)="connect(d)">
             <ion-icon item-left name="bluetooth"></ion-icon>
             <h2>{{ d.name }}</h2>
-            <p>{{ d.address }}</p>
+            <p>{{ d.id }}</p>
         </button>
         <ion-list-header *ngIf="searchUnpaired"><ion-spinner item-end name="bubbles"></ion-spinner>Available devices:</ion-list-header>
-
-
     </ion-list>
+    <p [innerHtml]="received"></p>
 
 
 
