@@ -6,7 +6,11 @@
 
 </ion-header>
 <ion-content>
-    <basic-edit-form [details]="details" (submit)="saveRecipe($event)" (cancel)="navCtrl.pop()"></basic-edit-form>
+    <basic-edit-form
+            [submitOnChange]="true"
+            [details]="details"
+            (submit)="saveRecipe($event)"
+            (cancel)="navCtrl.pop()"></basic-edit-form>
     <div>
         Recipe steps:
     </div>

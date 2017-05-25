@@ -9,6 +9,7 @@ import {
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {
     Recipe,
+    RecipeDetails,
     Step
 } from "./data/datatypes";
 import {Observable} from "rxjs/Observable";
@@ -79,7 +80,6 @@ export class RecipesService {
     }
 
 
-
     getSteps(recipe_id: number): Observable<Step[]> {
         return Observable.fromPromise(
             this.db.transaction(tx => tx.executeSql(`
@@ -104,33 +104,74 @@ export class RecipesService {
             });
     }
 
-    getRecipe(id: number): Observable<Recipe> {
-        // TODO ok, this can be done like in UserService. Check that out and refactor.
+    getRecipeDetails(id: number): Observable<RecipeDetails> {
         return Observable.fromPromise(
-            this.db.transaction(tx => tx.executeSql(`
-              SELECT
-                id,
-                name,
-                description
-              FROM recipes
-              WHERE id = ?
-            `, [id]))
-                .then(data => data.rows)
-                .then(rows => rows.length > 0 ?
-                    this.fillRecipeSteps({...rows.item(0)}).toPromise()
-                    : {}
-                )
-        );
+            this.db.transaction(tx => Promise.all([
+                tx.executeSql(`SELECT
+                                 id,
+                                 name,
+                                 description
+                               FROM recipes
+                               WHERE id = ?`, [id])
+                    .then(data=> data.rows.length > 0 ? data : Promise.reject('No such recipe')),
+                tx.executeSql(`SELECT
+                                 id,
+                                 name,
+                                 description,
+                                 step_number
+                               FROM steps
+                               WHERE recipe_id = ?
+                               ORDER BY step_number`, [id]),
+                tx.executeSql(`SELECT
+                                 s.id      AS step,
+                                 m.id      AS id,
+                                 m.content AS content,
+                                 m.type_id AS type
+                               FROM steps AS s
+                                 JOIN stepMedias ON s.id = stepMedias.step_id
+                                 JOIN medias AS m ON stepMedias.media_id = m.id
+                               WHERE s.recipe_id = ?`, [id])
+            ]))
+                .then(arr => {
+                    let media:any[] = rowsAsArray(arr[2]);
+                    let recipe = {
+                        ...arr[0].rows.item(0),
+                        steps: rowsAsArray(arr[1])
+                    };
+                    recipe.steps.forEach(step => step.media = media.filter(media => media.step == step.id));
+                    return recipe;
+                })
+        )
     }
 
-
-
-
-
-
-
-
-
+    getRecipe(id: number): Observable<Recipe> {
+        // TODO Ok, now we have code duplication. Get recipe and get recipe details - it should be refactored,
+        // TODO but keep that neat one-step fetch of steps media in getRecipeDetails method
+        return Observable.fromPromise(
+            this.db.transaction(tx => Promise.all([
+                tx.executeSql(`SELECT
+                                 id,
+                                 name,
+                                 description
+                               FROM recipes
+                               WHERE id = ?`, [id])
+                    .then(data=> data.rows.length > 0 ? data : Promise.reject('No such recipe')),
+                tx.executeSql(`SELECT
+                                 id,
+                                 name,
+                                 description,
+                                 step_number
+                               FROM steps
+                               WHERE recipe_id = ?
+                               ORDER BY step_number`, [id]),
+            ]))
+                .then(arr => {
+                    return {
+                        ...arr[0].rows.item(0),
+                        steps: rowsAsArray(arr[1])
+                    };
+                })
+        )    }
 
 
 }

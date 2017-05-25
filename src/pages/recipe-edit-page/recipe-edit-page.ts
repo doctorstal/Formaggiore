@@ -49,13 +49,7 @@ export class RecipeEditPage {
     }
 
     saveRecipe(value) {
-        let loading = this.loadingCtrl.create({content: 'Saving recipe'});
-        Observable.fromPromise(loading.present())
-            .flatMap(() => this.recipesService.save(value))
-            .flatMap(success =>
-                loading.dismiss()
-                    .then(() => this.navCtrl.pop())
-            ).subscribe();
+        this.recipesService.save(value);
     }
 
     createStep(title: string) {

@@ -1,18 +1,37 @@
-<!--
-  Generated template for the DeviceFindPage page.
-
-  See http://ionicframework.com/docs/components/#navigation for more info on
-  Ionic pages and navigation.
--->
 <ion-header>
 
-  <ion-navbar>
-    <ion-title>device-find-page</ion-title>
-  </ion-navbar>
+    <ion-navbar>
+        <ion-title>Connect paired devices</ion-title>
+    </ion-navbar>
 
 </ion-header>
 
-
 <ion-content>
+    <ion-refresher (ionRefresh)="list($event)">
+    <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    <ion-list>
+        <ion-card *ngIf="status?.length > 0">
+            <ion-card-content>
+                <p [innerHtml]="status"></p>
+            </ion-card-content>
+        </ion-card>
+        <ion-card *ngIf="devices?.length == 0">
+            <ion-content>
+                No devices in list...
+            </ion-content>
+        </ion-card>
+        <ion-list-header *ngIf="devices?.length > 0">Paired devices: </ion-list-header>
+        <button ion-item *ngFor="let d of devices" (click)="connect(d)">
+            <ion-icon item-left name="bluetooth"></ion-icon>
+            <h2>{{ d.name }}</h2>
+            <p>{{ d.address }}</p>
+        </button>
+        <ion-list-header *ngIf="searchUnpaired"><ion-spinner item-end name="bubbles"></ion-spinner>Available devices:</ion-list-header>
+
+
+    </ion-list>
+
+
 
 </ion-content>

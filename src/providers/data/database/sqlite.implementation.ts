@@ -108,37 +108,39 @@ export class WebDB extends DB {
         return this.db ? Promise.resolve() : Promise.reject('Something wrong, no DB opened!');
     }
 
-    /*private _tx: Promise<any>;
+    private _tx: Promise<any>;
 
-     transaction(executor: (tx: DBTransaction) => any): Promise<any> {
-     this._tx = (this._tx || Promise.resolve())
-     .then(() => this._transaction(executor))
-     .catch(error => {
-     this._tx = null;
-     return error;
-     });
-     return this._tx;
-     }
-
-     private _*/
     transaction(executor: (tx: DBTransaction) => any): Promise<any> {
+        let tx = (this._tx || Promise.resolve())
+            .then(() => this._transaction(executor));
+        this._tx= tx
+            .catch(error => {
+                this._tx = null;
+                return error;
+            });
+
+        return tx;
+    }
+
+    private _transaction(executor: (tx: DBTransaction) => any): Promise<any> {
 
 
         if (this.intransaction) console.warn('You started transaction within a transaction. ' +
             'This might not work on real device.');
         this.intransaction = true;
-        let result;
+        let result, error;
         return new Promise((resolve, reject) =>
             this.db.transaction(
                 tx => executor(this.wrap(tx))
-                    .then(data => result = data),
+                    .then(data => result = data)
+                    .catch(e => error = e),
                 (error) => {
                     this.intransaction = false;
                     reject(error);
                 },
                 () => {
                     this.intransaction = false;
-                    resolve(result);
+                    error ? reject(error) : resolve(result);
                 })
         );
     }

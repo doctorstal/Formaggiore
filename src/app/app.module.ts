@@ -18,6 +18,7 @@ import {dataServiceProviders} from "../providers/data/data.service.provider";
 import {AuthService} from "../providers/auth-service";
 import {Camera} from "@ionic-native/camera";
 import {CameraMock} from "../providers/camera-mock";
+import {BluetoothSerial} from "@ionic-native/bluetooth-serial";
 
 @NgModule({
     declarations: [
@@ -38,12 +39,13 @@ import {CameraMock} from "../providers/camera-mock";
         SplashScreen,
         {provide: ErrorHandler, useClass: IonicErrorHandler},
         AuthService,
+        BluetoothSerial,
         {
             provide: Camera, useFactory: (platform: Platform) => {
             return (platform.is('core') || platform.is('mobileweb')) ?
                 new CameraMock() :
                 new Camera();
-        },
+            },
             deps: [Platform]
         }
     ]

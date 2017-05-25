@@ -5,11 +5,14 @@
 
 </ion-header>
 <ion-content>
-    <ion-title>
-    {{details?.description}}
-    </ion-title>
+    <ion-card>
+        <p [innerHtml]="details?.description"></p>
+    </ion-card>
+
     <ion-card *ngFor="let step of details?.steps">
-        <img *ngFor="let m of step.media" [src]="m.content"/>
+        <ion-slides pager="true" loop="true" zoom="true">
+            <ion-slide *ngFor="let m of step.media"><img [src]="m.content"/></ion-slide>
+        </ion-slides>
         <ion-card-content>
             <ion-card-title>{{step.name}}</ion-card-title>
             <p>{{step.description}}</p>
