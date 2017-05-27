@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+// Requests and Responses should be preceded with combination of 0x03 + byte from Messages enum + message length
+// Device always handles requests and sends responses
+
+enum Messages {
+    UNKNOWN = 0;
+    HANDSHAKE = 1;
+    SENSOR_TYPES = 2;
+    DIRECTIVE = 3;
+}
+
+message HandshakeRequest {
+    int32 protocolVersion = 1;
+}
+
+message HandshakeResponse {
+    bool accepted = 1;
+}
+
+message SensorTypesRequest {
+}
+
+message SensorTypesResponse {
+    repeated SensorType types = 1;
+
+    message SensorType {
+        string token = 1;
+        string defaultName = 2;
+        int32 minValue = 3;
+        int32 maxValue = 4;
+    }
+}
+
+message SensorsRequest {
+    repeated Sensor sensors = 1;
+
+    message Sensor {
+        string token = 1;
+        int32 id = 2;
+    }
+}
+
+message DirectiveRequest {
+    int32 sensorId = 1;
+    int32 startValue = 2;
+    int32 endValue = 3;
+    int32 time = 4;
+}
+
+message DirectiveResponse {
+    bool accepted = 1;
+}
