@@ -55,7 +55,10 @@ export class DeviceFindPage {
     connect(d: { name: string, id: string}) {
         this.bt.connect(d.id)
             .flatMap(() =>this.bt.subscribeRawData())
-            .subscribe(data => this.received += new Uint8Array(data));
+            .subscribe(data => this.received += this.ab2str(data));
+    }
+    ab2str(buf) {
+        return String.fromCharCode.apply(null, new Uint8Array(buf));
     }
 
 }

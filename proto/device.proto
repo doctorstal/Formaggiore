@@ -1,53 +1,109 @@
 syntax = "proto3";
 
-// Requests and Responses should be preceded with combination of 0x03 + byte from Messages enum + message length
-// Device always handles requests and sends responses
+// Actual protobuf messages parsing is quite expencive for microcontrollers,
+// so we'll use enums as a tag values.
+// And we will compose messages based on following format, described below in comments.
+enum Markup {
+    UNKNOWN_MARKUP = 0;
+    MESSAGE_START = 2;
+    MESSAGE_END = 3;
+}
 
 enum Messages {
-    UNKNOWN = 0;
+    UNKNOWN_MESSAGE = 0;
     HANDSHAKE = 1;
     SENSOR_TYPES = 2;
-    DIRECTIVE = 3;
+    SENSORS = 3;
+    DIRECTIVE = 4;
+    SENSOR_VALUE = 5;
 }
 
-message HandshakeRequest {
+// Markup.MESSSAGE_START+Messages.HANDSHAKE+Markup.MESSAGE_END
+/*message HandshakeRequest {
+}*/
+
+
+// Markup.MESSSAGE_START+Messages.HANDSHAKE+protocolVersion+Markup.MESSAGE_END
+/*
+message HandshakeResponse {
     int32 protocolVersion = 1;
 }
+*/
 
-message HandshakeResponse {
-    bool accepted = 1;
-}
 
+// Markup.MESSSAGE_START+Messages.SENSORTYPE+Markup.MESSAGE_END
+/*
 message SensorTypesRequest {
 }
+*/
 
+// Markup.MESSSAGE_START+Messages.SENSORTYPE+
+// (len(typeToken)+typeToken+len(defaultName)+defaultName+minValue+maxValue)*
+// +Markup.MESSAGE_END
+/*
 message SensorTypesResponse {
     repeated SensorType types = 1;
 
     message SensorType {
-        string token = 1;
+        string typeToken = 1;
         string defaultName = 2;
         int32 minValue = 3;
         int32 maxValue = 4;
     }
 }
+*/
 
+// Markup.MESSSAGE_START+Messages.SENSORS+Markup.MESSAGE_END
+/*
 message SensorsRequest {
+}
+*/
+// Markup.MESSSAGE_START+Messages.SENSORS+
+// (len(typeToken)+typeToken+id)*
+// +Markup.MESSAGE_END
+/*
+message SensorsResponse {
     repeated Sensor sensors = 1;
 
     message Sensor {
-        string token = 1;
+        string typeToken = 1;
         int32 id = 2;
     }
 }
+*/
 
+// Markup.MESSSAGE_START+Messages.DIRECTIVE+
+// sensorId+startValue+endValue+time
+// +Markup.MESSAGE_END
+/*
 message DirectiveRequest {
     int32 sensorId = 1;
     int32 startValue = 2;
     int32 endValue = 3;
     int32 time = 4;
 }
+*/
 
+// Markup.MESSSAGE_START+Messages.DIRECTIVE+
+// 0/1
+// +Markup.MESSAGE_END
+/*
 message DirectiveResponse {
     bool accepted = 1;
 }
+*/
+// Markup.MESSSAGE_START+Messages.SENSOR_VALUE+
+// sensorId
+// +Markup.MESSAGE_END
+/*
+message SensorValueRequest {
+    int32 sensorId = 1;
+}
+
+// Markup.MESSSAGE_START+Messages.SENSOR_VALUE+
+// value
+// +Markup.MESSAGE_END
+
+message SensorValueResponse {
+    int32 value = 1;
+}*/
