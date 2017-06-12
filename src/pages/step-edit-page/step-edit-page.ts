@@ -15,12 +15,6 @@ import {
 } from "@ionic-native/camera";
 import {StepsService} from "../../providers/steps-service";
 
-/**
- * Generated class for the StepEditPage page.
- *
- * See http://ionicframework.com/docs/components/#navigation for more info
- * on Ionic pages and navigation.
- */
 @IonicPage()
 @Component({
     selector: 'page-step-edit-page',

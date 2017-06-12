@@ -19,6 +19,7 @@ import {AuthService} from "../providers/auth-service";
 import {Camera} from "@ionic-native/camera";
 import {CameraMock} from "../providers/camera-mock";
 import {BluetoothSerial} from "@ionic-native/bluetooth-serial";
+import {BluetoothService} from "../providers/bluetooth-service";
 
 @NgModule({
     declarations: [
@@ -40,6 +41,7 @@ import {BluetoothSerial} from "@ionic-native/bluetooth-serial";
         {provide: ErrorHandler, useClass: IonicErrorHandler},
         AuthService,
         BluetoothSerial,
+        BluetoothService,
         {
             provide: Camera, useFactory: (platform: Platform) => {
             return (platform.is('core') || platform.is('mobileweb')) ?

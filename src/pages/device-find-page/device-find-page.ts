@@ -4,7 +4,7 @@ import {
     NavController,
     NavParams
 } from "ionic-angular";
-import {BluetoothSerial} from "@ionic-native/bluetooth-serial";
+import {BluetoothService} from "../../providers/bluetooth-service";
 
 /**
  * Generated class for the DeviceFindPage page.
@@ -26,7 +26,8 @@ export class DeviceFindPage {
     searchUnpaired = false; // Unsupported yet
 
 
-    constructor(public navCtrl: NavController, public navParams: NavParams, private bt: BluetoothSerial) {
+    constructor(public navCtrl: NavController, public navParams: NavParams, private btService: BluetoothService) {
+        btService.devices$.subscribe(devices => this.devices = devices);
     }
 
     ionViewDidLoad() {
@@ -44,19 +45,18 @@ export class DeviceFindPage {
         ];*/
 
         this.status = '';
-        this.bt.isEnabled()
-            .catch(() => this.bt.enable())
-            .then(() => this.bt.list())
-            .then(devices => this.devices = devices)
+        this.btService.list()
             .catch(error => this.status = 'Failed to list devices <br/>' + error)
             .then(() => refresher && refresher.complete());
     }
 
     connect(d: { name: string, id: string}) {
-        this.bt.connect(d.id)
-            .flatMap(() =>this.bt.subscribeRawData())
+        this.btService.connect(d.id);
+        this.btService.rawData$
+            .do(data=> console.log(data))
             .subscribe(data => this.received += this.ab2str(data));
     }
+
     ab2str(buf) {
         return String.fromCharCode.apply(null, new Uint8Array(buf));
     }

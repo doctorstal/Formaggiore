@@ -12,19 +12,31 @@ struct SensorType {
 
 struct SensorType firstSensorType = {"c820201f-99d3-4e70-b4b1-c5b10ff15acf", "Inducttion Heater", 0, 100};
 
+String inputString = "";
+
+byte readSerial() {
+  if (!Serial.available()) delay(100); // Just wait a little if no bytes are available - for new bytes to come
+  char c = (char) Serial.read();
+  inputString += c + '0';
+  inputString += "::";
+  return c;
+}
+
 void setup() {
     Serial.begin(9600);
     Serial.println("Basic Formaggiore device implementation.");
-    Serial.println("I have this sensor (or should I say control element?):");
+    Serial.println("I have this sensor:");
     Serial.println(firstSensorType.token);
     Serial.println(firstSensorType.defaultName);
     Serial.println(firstSensorType.minValue);
     Serial.println(firstSensorType.maxValue);
-sendSensorTypesResponse();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  //sendHandshakeResponse();
+  Serial.println("Hello!");
+  delay(500);
 
 }
 
@@ -56,13 +68,17 @@ void sendSensorsResponse() {
 
 void serialEvent() {
   while (Serial.available()) {
-    if(Serial.read() == Markup_MESSAGE_START)
+    if(readSerial() == Markup_MESSAGE_START)
       handleMessage();
   }
+  Serial.print("Handled it! ");
+  Serial.println(inputString);
+  inputString = "";
 }
 
 bool handleMessage() {
-  int message = Serial.read();
+  inputString+="\nMessage: ";
+  int message = readSerial();
   switch(message) {
     case Messages_HANDSHAKE:
       sendHandshakeResponse();
@@ -73,11 +89,12 @@ bool handleMessage() {
     case Messages_SENSORS:
      sendSensorsResponse();
      break;
+    
     default: return false;
   }
-  // Should we read till Markup_MESSAGE_END if we do not need to? Probably yes!
-  while(message != Markup_MESSAGE_END) 
-    message = (Messages) Serial.read();
+  while(readSerial() != Markup_MESSAGE_END && Serial.available()) 
+      ;
+    inputString += "end.\n";
   
   return true;
 }

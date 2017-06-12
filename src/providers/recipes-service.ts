@@ -14,7 +14,6 @@ import {
 } from "./data/datatypes";
 import {Observable} from "rxjs/Observable";
 
-
 @Injectable()
 export class RecipesService {
     protected recipes: BehaviorSubject<Recipe[]> = new BehaviorSubject([]);
@@ -38,8 +37,6 @@ export class RecipesService {
         );
     }
 
-
-    // TODO I guess we should stick to Observable design here these methods should be refactored
     private fetchRecipes(): Promise<any> {
         return this.db.transaction(
             tx => tx.executeSql(`SELECT *
@@ -67,7 +64,6 @@ export class RecipesService {
             .then(() => this.fetchRecipes());
     }
 
-
     addStep(step: Step, recipe: Recipe): Observable<boolean> {
         return Observable.fromPromise(
             this.db.transaction(tx =>
@@ -78,7 +74,6 @@ export class RecipesService {
                 .catch(console.log)
         )
     }
-
 
     getSteps(recipe_id: number): Observable<Step[]> {
         return Observable.fromPromise(
@@ -145,8 +140,6 @@ export class RecipesService {
     }
 
     getRecipe(id: number): Observable<Recipe> {
-        // TODO Ok, now we have code duplication. Get recipe and get recipe details - it should be refactored,
-        // TODO but keep that neat one-step fetch of steps media in getRecipeDetails method
         return Observable.fromPromise(
             this.db.transaction(tx => Promise.all([
                 tx.executeSql(`SELECT
@@ -172,6 +165,4 @@ export class RecipesService {
                     };
                 })
         )    }
-
-
 }
