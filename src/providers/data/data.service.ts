@@ -15,6 +15,9 @@ export class DataService {
     constructor(private db: DB,
                 private errorHandler: ErrorHandler) {
         db.ready()
+            .then(() => db.transaction(tx => tx.executeSql(
+                "PRAGMA FOREIGN_KEYS = ON",
+                [])))
             .then(() => this.updateTablesStructure())
             .catch(error => {
                 console.log(error);
