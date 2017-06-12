@@ -18,92 +18,66 @@ enum Messages {
     SENSOR_VALUE = 5;
 }
 
-// Markup.MESSSAGE_START+Messages.HANDSHAKE+Markup.MESSAGE_END
-/*message HandshakeRequest {
-}*/
+
+// Messages.HANDSHAKE
+message HandshakeRequest {
+}
 
 
-// Markup.MESSSAGE_START+Messages.HANDSHAKE+protocolVersion+Markup.MESSAGE_END
-/*
+// Messages.HANDSHAKE+protocolVersion
 message HandshakeResponse {
     int32 protocolVersion = 1;
 }
-*/
 
 
-// Markup.MESSSAGE_START+Messages.SENSORTYPE+Markup.MESSAGE_END
-/*
+// Messages.SENSOR_TYPES
 message SensorTypesRequest {
 }
-*/
 
-// Markup.MESSSAGE_START+Messages.SENSORTYPE+
+// Messages.SENSOR_TYPES+
 // (len(typeToken)+typeToken+len(defaultName)+defaultName+minValue+maxValue)*
-// +Markup.MESSAGE_END
-/*
 message SensorTypesResponse {
     repeated SensorType types = 1;
-
-    message SensorType {
-        string typeToken = 1;
-        string defaultName = 2;
-        int32 minValue = 3;
-        int32 maxValue = 4;
-    }
 }
-*/
+message SensorType {
+    string typeToken = 1;
+    string defaultName = 2;
+    int32 minValue = 3;
+    int32 maxValue = 4;
+}
 
-// Markup.MESSSAGE_START+Messages.SENSORS+Markup.MESSAGE_END
-/*
+// Messages.SENSORS
 message SensorsRequest {
 }
-*/
-// Markup.MESSSAGE_START+Messages.SENSORS+
-// (len(typeToken)+typeToken+id)*
-// +Markup.MESSAGE_END
-/*
+
+// Messages.SENSORS+(len(typeToken)+typeToken+id)*
 message SensorsResponse {
     repeated Sensor sensors = 1;
 
-    message Sensor {
-        string typeToken = 1;
-        int32 id = 2;
-    }
 }
-*/
+message Sensor {
+    string typeToken = 1;
+    int32 id = 2;
+}
 
-// Markup.MESSSAGE_START+Messages.DIRECTIVE+
-// sensorId+startValue+endValue+time
-// +Markup.MESSAGE_END
-/*
+// Messages.DIRECTIVE+sensorId+startValue+endValue+time
 message DirectiveRequest {
     int32 sensorId = 1;
     int32 startValue = 2;
     int32 endValue = 3;
     int32 time = 4;
 }
-*/
 
-// Markup.MESSSAGE_START+Messages.DIRECTIVE+
-// 0/1
-// +Markup.MESSAGE_END
-/*
+// Messages.DIRECTIVE+accepted
 message DirectiveResponse {
     bool accepted = 1;
 }
-*/
-// Markup.MESSSAGE_START+Messages.SENSOR_VALUE+
-// sensorId
-// +Markup.MESSAGE_END
-/*
+// Messages.SENSOR_VALUE+sensorId
 message SensorValueRequest {
     int32 sensorId = 1;
 }
 
-// Markup.MESSSAGE_START+Messages.SENSOR_VALUE+
-// value
-// +Markup.MESSAGE_END
-
+// Messages.SENSOR_VALUE+value
 message SensorValueResponse {
     int32 value = 1;
-}*/
+}

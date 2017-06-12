@@ -44,7 +44,7 @@ export class NativeDB extends DB {
         super();
         // log in cordova invokes toString - [Object object] is not informative enough. JSON.stringify can help a little
         let _log = console.log;
-        console.log = (message?: any, ...optionalParams: any[]) => _log(JSON.stringify(message), ...optionalParams);
+        console.log = (message?: any, ...optionalParams: any[]) => _log("Formaggiore log: "+JSON.stringify(message), ...optionalParams);
 
         this.connectPromise = ready.then(() => this.connect());
     }
