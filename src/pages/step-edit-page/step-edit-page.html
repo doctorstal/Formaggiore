@@ -1,6 +1,6 @@
 <ion-header>
     <ion-navbar>
-        <ion-title>Recipe {{details?.name}}</ion-title>
+        <ion-title>Step {{step?.name}}</ion-title>
     </ion-navbar>
 </ion-header>
 <ion-content>
@@ -28,7 +28,16 @@
                 <ion-icon name="albums"></ion-icon>
             </button>
         </ion-fab-list>
+        <ion-fab-list *ngIf="!step.directive" side="left">
+
+            <button (click)="createDirective();fab.close()" ion-fab>
+                <ion-icon name="thermometer"></ion-icon>
+            </button>
+        </ion-fab-list>
     </ion-fab>
     <basic-edit-form [details]="step" [submitOnChange]="true"
                      (submit)="save($event)"></basic-edit-form>
+
+    <directive-edit *ngIf="step.directive" [model]="step.directive" [sensorTypes]="sensorTypes" (change)="saveDirective($event)"></directive-edit>
+
 </ion-content>

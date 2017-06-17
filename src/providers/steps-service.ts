@@ -2,12 +2,15 @@ import {Injectable} from "@angular/core";
 import "rxjs/add/operator/map";
 import {
     DB,
+    firstRowAsObject,
     rowsAsArray
 } from "./data/database/sqlite.implementation";
 import {Observable} from "rxjs/Observable";
 import {
     Media,
-    Step
+    SensorDirective,
+    Step,
+    StepDetails
 } from "./data/datatypes";
 
 @Injectable()
@@ -93,6 +96,79 @@ export class StepsService {
                                WHERE stepMedias.step_id = ?`, [step_id])
             )
                 .then(data => rowsAsArray(data))
+        );
+    }
+
+    getStepDetails(step_id: number): Observable<StepDetails> {
+        return Observable.fromPromise(
+            this.db.transaction(tx =>
+                Promise.all([
+                    tx.executeSql(`SELECT
+                                     id,
+                                     name,
+                                     description
+                                   FROM steps
+                                   WHERE id = ?`, [step_id]),
+                    tx.executeSql(`SELECT
+                                     m.id      AS id,
+                                     m.content AS content,
+                                     m.type_id AS type
+                                   FROM steps AS s
+                                     JOIN stepMedias ON s.id = stepMedias.step_id
+                                     JOIN medias AS m ON stepMedias.media_id = m.id
+                                   WHERE s.id = ?`, [step_id]),
+                    tx.executeSql(`SELECT
+                                     d.id          AS id,
+                                     d.start_value AS startValue,
+                                     d.end_value   AS endValue,
+                                     d.time        AS time,
+                                     st.token      AS sTypeToken
+                                   FROM stepDirectives AS sd
+                                     JOIN directives AS d ON sd.directive_id = d.id
+                                     LEFT JOIN sTypes AS st ON d.stype_id = st.id
+                                   WHERE sd.step_id = ?`, [step_id])
+                ]))
+                .then(arr => {
+                    let stepDetails: StepDetails = firstRowAsObject(arr[0]);
+                    if (stepDetails) {
+                        stepDetails.media = rowsAsArray(arr[1]);
+                        stepDetails.directive = firstRowAsObject(arr[2]);
+                    }
+                    return stepDetails;
+                })
+        );
+    }
+
+    saveDirective(step_id: number, value: SensorDirective): Observable<boolean> {
+        return Observable.fromPromise(
+            this.db.transaction(tx =>
+                tx.executeSql(
+                        `SELECT directive_id
+                         FROM stepDirectives
+                         WHERE step_id = ?`, [step_id]
+                )
+                    .then(data => (data.rows.length > 0)
+                        ? tx.executeSql(`UPDATE directives
+                            SET stype_id  = (SELECT id
+                                             FROM sTypes
+                                             WHERE token = ?),
+                              start_value = ?,
+                              end_value   = ?,
+                              time        = ?
+                            WHERE id = ?`,
+                            [value.sTypeToken, value.startValue, value.endValue, value.time, data.rows.item(0).directive_id])
+                        : tx.executeSql(`INSERT INTO directives (stype_id, start_value, end_value, time)
+                            VALUES ((SELECT id
+                                     FROM sTypes
+                                     WHERE token = ?), ?, ?, ?)`,
+                            [value.sTypeToken, value.startValue, value.endValue, value.time])
+                            .then(insertData => tx.executeSql(`INSERT INTO stepDirectives (step_id, directive_id)
+                                VALUES (?, ?)`,
+                                [step_id, insertData.insertId])
+                            )
+                    )
+            )
+                .then(() => true)
         );
     }
 }

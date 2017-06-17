@@ -30,6 +30,10 @@ export function rowsAsArray(data:DBResultSet):any[] {
     return arr;
 }
 
+export function firstRowAsObject(data: DBResultSet): any {
+    return data.rows.length > 0 ? {...data.rows.item(0)} : null;
+}
+
 export interface DBResultSet extends SQLResultSet {
 }
 

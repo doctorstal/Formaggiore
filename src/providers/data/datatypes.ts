@@ -13,21 +13,29 @@ export type RecipeDetails = BasicArticle & {
 };
 
 export type Step = BasicArticle & {
-    step_number?:number;
+    step_number?: number;
 };
 
 export enum MediaType{
     PHOTO,
     VIDEO
 }
-export type Media = {id?:number, type: MediaType, content: string};
+export type Media = { id?: number, type: MediaType, content: string };
 
 export type StepDetails = Step & {
-    media?:Media[],
-    knowledge?:Knowledge
+    media?: Media[],
+    knowledge?: Knowledge,
+    directive?: SensorDirective
 };
 
 export type Knowledge = BasicArticle;
+
+export type SensorDirective = {
+    sTypeToken: string,
+    startValue: number,
+    endValue: number,
+    time: number
+}
 
 
 export enum Role {

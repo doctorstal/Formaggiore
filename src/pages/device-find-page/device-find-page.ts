@@ -5,6 +5,7 @@ import {
     NavParams
 } from "ionic-angular";
 import {BluetoothService} from "../../providers/bluetooth-service";
+import {DevicesService} from "../../providers/devices-service";
 
 /**
  * Generated class for the DeviceFindPage page.
@@ -26,7 +27,10 @@ export class DeviceFindPage {
     searchUnpaired = false; // Unsupported yet
 
 
-    constructor(public navCtrl: NavController, public navParams: NavParams, private btService: BluetoothService) {
+    constructor(public navCtrl: NavController,
+                public navParams: NavParams,
+                private btService: BluetoothService,
+                private devicesService:DevicesService) {
         btService.devices$.subscribe(devices => this.devices = devices);
     }
 
@@ -51,10 +55,10 @@ export class DeviceFindPage {
     }
 
     connect(d: { name: string, id: string}) {
-        this.btService.connect(d.id);
-        this.btService.rawData$
-            .do(data=> console.log(data))
-            .subscribe(data => this.received += this.ab2str(data));
+        this.btService
+            .getSensors(d.id)
+            .then(sensors =>
+                this.devicesService.saveSensorTypes(sensors));
     }
 
     ab2str(buf) {

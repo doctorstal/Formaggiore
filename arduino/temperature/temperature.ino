@@ -10,7 +10,7 @@ struct SensorType {
   const int maxValue;
 };
 
-struct SensorType firstSensorType = {"c820201f-99d3-4e70-b4b1-c5b10ff15acf", "Inducttion Heater", 0, 100};
+struct SensorType firstSensorType = {"c820201f-99d3-4e70-b4b1-c5b10ff15acf", "Induction Heater", 0, 100};
 
 String inputString = "";
 

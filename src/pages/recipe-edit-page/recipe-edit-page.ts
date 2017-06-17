@@ -13,13 +13,8 @@ import {
 } from "../../providers/data/datatypes";
 import {Subject} from "rxjs/Subject";
 import {StepsService} from "../../providers/steps-service";
+import {isUndefined} from "util";
 
-/**
- * Generated class for the RecipeEditPage page.
- *
- * See http://ionicframework.com/docs/components/#navigation for more info
- * on Ionic pages and navigation.
- */
 @IonicPage()
 @Component({
     selector: 'page-recipe-edit-page',
@@ -35,13 +30,14 @@ export class RecipeEditPage {
                 private loadingCtrl: LoadingController,
                 private recipesService: RecipesService,
                 private stepService: StepsService) {
+        if (isUndefined(navParams.data.id)) {
+            navCtrl.setRoot('RecipesPage');
+        }
 
         this.detailsSubject = new Subject();
         this.detailsSubject
             .flatMap(() => this.recipesService.getRecipe(this.navParams.data.id))
             .subscribe(data => this.details = data);
-
-
     }
 
     ionViewWillEnter() {

@@ -11,7 +11,10 @@ import {
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Md5} from "ts-md5/dist/md5";
 import {Subject} from "rxjs/Subject";
-import {DB} from "./data/database/sqlite.implementation";
+import {
+    DB,
+    firstRowAsObject
+} from "./data/database/sqlite.implementation";
 
 
 @Injectable()
@@ -103,7 +106,7 @@ export class AuthService {
                         .then(data => {
                             console.log(data);
                             if (data.rows.length > 0) {
-                                observer.next({...data.rows.item(0)});
+                                observer.next(firstRowAsObject(data));
                                 observer.complete();
                             } else {
                                 observer.error('No such user!');

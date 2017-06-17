@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Known sensors</ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-card *ngFor="let sensor of sensors">
+      <ion-card-content>
+        <ion-item>
+          <ion-icon item-left name="thermometer"></ion-icon>
+          <ion-card-title>{{ sensor.defaultName }}</ion-card-title>
+          <p>GUID Token: {{ sensor.typeToken }}</p>
+          <p>Values: {{ sensor.minValue }} - {{ sensor.maxValue }}</p>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+</ion-content>

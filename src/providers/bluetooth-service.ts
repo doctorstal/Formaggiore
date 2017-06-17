@@ -4,21 +4,12 @@ import {BluetoothSerial} from "@ionic-native/bluetooth-serial";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 import {Subscription} from "rxjs/Subscription";
+import {
+    Markup,
+    Messages,
+    SensorType
+} from "../protocol/device";
 
-enum Markup {
-    UNKNOWN_MARKUP = 0,
-    MESSAGE_START = 2,
-    MESSAGE_END = 3,
-}
-
-enum Messages {
-    UNKNOWN_MESSAGE = 0,
-    HANDSHAKE = 1,
-    SENSOR_TYPES = 2,
-    SENSORS = 3,
-    DIRECTIVE = 4,
-    SENSOR_VALUE = 5,
-}
 
 @Injectable()
 export class BluetoothService {
@@ -86,5 +77,11 @@ export class BluetoothService {
         console.log("RAW DATA:");
         console.log(data);
 
+    }
+
+    getSensors(deviceId: string):Promise<SensorType[]> {
+        return Promise.resolve(
+            [new SensorType("c820201f-99d3-4e70-b4b1-c5b10ff15acf", "Induction Heater", 0, 100)]
+        );
     }
 }

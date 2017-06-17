@@ -108,7 +108,7 @@ export class RecipesService {
                                  description
                                FROM recipes
                                WHERE id = ?`, [id])
-                    .then(data=> data.rows.length > 0 ? data : Promise.reject('No such recipe')),
+                    .then(data => data.rows.length > 0 ? data : Promise.reject('No such recipe')),
                 tx.executeSql(`SELECT
                                  id,
                                  name,
@@ -125,15 +125,29 @@ export class RecipesService {
                                FROM steps AS s
                                  JOIN stepMedias ON s.id = stepMedias.step_id
                                  JOIN medias AS m ON stepMedias.media_id = m.id
+                               WHERE s.recipe_id = ?`, [id]),
+                tx.executeSql(`SELECT
+                                 s.id          AS step,
+                                 d.id          AS id,
+                                 d.start_value AS startValue,
+                                 d.end_value   AS endValue,
+                                 d.time        AS time,
+                                 st.token      AS sTypeToken
+                               FROM steps AS s
+                                 JOIN stepDirectives ON s.id = stepDirectives.step_id
+                                 JOIN directives AS d ON stepDirectives.directive_id = d.id
+                                 JOIN sTypes AS st ON d.stype_id = st.id
                                WHERE s.recipe_id = ?`, [id])
             ]))
                 .then(arr => {
-                    let media:any[] = rowsAsArray(arr[2]);
-                    let recipe = {
+                    let media: any[] = rowsAsArray(arr[2]);
+                    let directives: any[] = rowsAsArray(arr[3]);
+                    let recipe: RecipeDetails = {
                         ...arr[0].rows.item(0),
                         steps: rowsAsArray(arr[1])
                     };
                     recipe.steps.forEach(step => step.media = media.filter(media => media.step == step.id));
+                    recipe.steps.forEach(step => step.directive = directives.find(directive => directive.step == step.id));
                     return recipe;
                 })
         )
@@ -148,7 +162,7 @@ export class RecipesService {
                                  description
                                FROM recipes
                                WHERE id = ?`, [id])
-                    .then(data=> data.rows.length > 0 ? data : Promise.reject('No such recipe')),
+                    .then(data => data.rows.length > 0 ? data : Promise.reject('No such recipe')),
                 tx.executeSql(`SELECT
                                  id,
                                  name,
@@ -164,5 +178,6 @@ export class RecipesService {
                         steps: rowsAsArray(arr[1])
                     };
                 })
-        )    }
+        )
+    }
 }

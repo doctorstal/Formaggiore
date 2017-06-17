@@ -53,7 +53,7 @@ function protoToTS(proto) {
                 .replace('::name::', message.name)
                 .replace(/(\n.*)::prop::/,
                     (match, p1) => message.fieldList
-                        .map(val => p1 + val.name + ': ' + getTSType(val))
+                        .map(val => p1 + val.name + ': ' + getFullTSType(val))
                         .join(','))
         )
         .join('\n');
@@ -61,6 +61,9 @@ function protoToTS(proto) {
     return res;
 }
 
+function getFullTSType(field) {
+    return getTSType(field) + (field.label == 3 ? '[]' : '');
+}
 
 function getTSType(field) {
     switch(field.type) {

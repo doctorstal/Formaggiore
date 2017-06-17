@@ -15,12 +15,6 @@ import {
 } from "@angular/forms";
 import {isUndefined} from "ionic-angular/util/util";
 
-/**
- * Generated class for the UserEditPage page.
- *
- * See http://ionicframework.com/docs/components/#navigation for more info
- * on Ionic pages and navigation.
- */
 @IonicPage()
 @Component({
     selector: 'page-user-edit-page',

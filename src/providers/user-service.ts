@@ -11,6 +11,7 @@ import {
 import {Observable} from "rxjs/Observable";
 import {
     DB,
+    firstRowAsObject,
     rowsAsArray
 } from "./data/database/sqlite.implementation";
 import {AuthService} from "./auth-service";
@@ -135,7 +136,7 @@ export class UserService {
                                    WHERE a.user_id = ?`, [id]),
                 ])
                     .then(dataArr => {
-                        let user: UserDetails = {...dataArr[0].rows.item(0)};
+                        let user: UserDetails = firstRowAsObject(dataArr[0]);
                         user.completedRecipes = rowsAsArray(dataArr[1]);
                         user.composedRecipes = rowsAsArray(dataArr[2]);
                         return user;
