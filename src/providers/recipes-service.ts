@@ -132,7 +132,8 @@ export class RecipesService {
                                  d.start_value AS startValue,
                                  d.end_value   AS endValue,
                                  d.time        AS time,
-                                 st.token      AS sTypeToken
+                                 st.token      AS sTypeToken,
+                                 st.name       AS sTypeName
                                FROM steps AS s
                                  JOIN stepDirectives ON s.id = stepDirectives.step_id
                                  JOIN directives AS d ON stepDirectives.directive_id = d.id

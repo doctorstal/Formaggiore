@@ -1,26 +1,66 @@
 <ion-header>
     <ion-navbar>
-        <ion-title>Recipe {{details?.name}}</ion-title>
+        <ion-title>{{details?.name}}</ion-title>
     </ion-navbar>
 
 </ion-header>
 <ion-content>
-    <ion-card>
-        <p [innerHtml]="details?.description"></p>
-    </ion-card>
+    <ng-container *ngIf="!started">
+        <ion-card>
+            <p [innerHtml]="details?.description"></p>
+        </ion-card>
+        <button ion-button full icon-left (click)="startRecipe()">
+            <ion-icon name="play"></ion-icon>
+            Start
+        </button>
+    </ng-container>
 
-    <ion-card *ngFor="let step of details?.steps">
-        <ion-slides pager="true" loop="true" zoom="true">
-            <ion-slide *ngFor="let m of step.media"><img [src]="m.content"/></ion-slide>
+    <ion-card *ngIf="started&&currentStep">
+        <ion-slides *ngIf="currentStep.media?.length > 0" pager="true" loop="true" zoom="true">
+            <ion-slide *ngFor="let m of currentStep.media"><img [src]="m.content"/></ion-slide>
         </ion-slides>
         <ion-card-content>
-            <ion-card-title>{{step.name}}</ion-card-title>
-            <p>{{step.description}}</p>
+            <ion-card-title>{{currentStep.name}}</ion-card-title>
+            <p>{{currentStep.description}}</p>
         </ion-card-content>
+
+        <ng-container *ngIf="currentStep.directive">
+        <ion-list>
+            <ion-item><ion-icon item-left name="thermometer"></ion-icon>Sensor directive</ion-item>
+            <ion-item text-wrap><p>This step contains device directive. It will find "{{ currentStep.directive.sTypeName
+               }}" sensor on a device you'll connect.</p>
+            <p>Step will take {{ currentStep.directive.time }} minutes.</p>
+            <p>Sensor value should change from {{ currentStep.directive.startValue }} to {{
+               currentStep.directive.endValue }}</p>
+            <p>
+                <button *ngIf="!currentTime" ion-button full icon-left (click)="chooseDevice()">
+                    <ion-icon name="bluetooth"></ion-icon>
+                    Choose device
+                </button>
+                <ion-item text-center *ngIf="currentTime">
+                    {{ currentTime }}
+                </ion-item>
+            </p>
+            </ion-item>
+        </ion-list></ng-container>
     </ion-card>
+
+    <ion-card *ngIf="finished">
+        <h2>Now your recipe is done!</h2>
+        <p>Enjoy your cheese and do not forget to do something good today.</p>
+    </ion-card>
+
     <ion-fab right bottom>
-        <button color="edit" ion-fab navPush="RecipeEditPage" [navParams]="details">
+        <button *ngIf="!started" color="edit" ion-fab navPush="RecipeEditPage"
+                [navParams]="details">
             <ion-icon name="create"></ion-icon>
+        </button>
+        <button *ngIf="started&&!finished" [disabled]="currentStep?.directive" color="create" ion-fab (click)="nextStep()">
+            <ion-icon *ngIf="currentIndex < details.steps.length - 1" name="fastforward"></ion-icon>
+            <ion-icon *ngIf="currentIndex == details.steps.length - 1" name="exit"></ion-icon>
+        </button>
+        <button *ngIf="finished" color="success" ion-fab (click)="startOver()">
+            <ion-icon name="skip-backward"></ion-icon>
         </button>
     </ion-fab>
 </ion-content>

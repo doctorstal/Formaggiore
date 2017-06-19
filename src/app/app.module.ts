@@ -20,10 +20,12 @@ import {Camera} from "@ionic-native/camera";
 import {CameraMock} from "../providers/camera-mock";
 import {BluetoothSerial} from "@ionic-native/bluetooth-serial";
 import {BluetoothService} from "../providers/bluetooth-service";
+import {ChooseDevicePopover} from "../pages/recipe-details-page/choose-device-popover/choose-device-popover";
 
 @NgModule({
     declarations: [
-        MyApp
+        MyApp,
+        ChooseDevicePopover
     ],
     imports: [
         BrowserModule,
@@ -31,7 +33,8 @@ import {BluetoothService} from "../providers/bluetooth-service";
     ],
     bootstrap: [IonicApp],
     entryComponents: [
-        MyApp
+        MyApp,
+        ChooseDevicePopover
     ],
     providers: [
         {provide: PLATFORM_READY, useFactory: (platform) => platform.ready(), deps: [Platform]},
@@ -44,10 +47,10 @@ import {BluetoothService} from "../providers/bluetooth-service";
         BluetoothService,
         {
             provide: Camera, useFactory: (platform: Platform) => {
-            return (platform.is('core') || platform.is('mobileweb')) ?
-                new CameraMock() :
-                new Camera();
-            },
+            return (platform.is('core') || platform.is('mobileweb'))
+                ? new CameraMock()
+                : new Camera();
+        },
             deps: [Platform]
         }
     ]

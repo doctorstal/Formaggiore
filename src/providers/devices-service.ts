@@ -20,11 +20,15 @@ export class DevicesService {
 
     saveSensorTypes(sensors: SensorType[]): Promise<any> {
         return this.db.transaction(tx =>
-            sensors.forEach(sensor =>
-            tx.executeSql(`INSERT INTO sTypes (token, name, min_value, max_value) 
-                  SELECT ?, ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM sTypes WHERE token=?)`,
-                [sensor.typeToken, sensor.defaultName, sensor.maxValue, sensor.minValue, sensor.typeToken]))
-        );
+                Promise.all(
+                    sensors.map(sensor =>
+                        tx.executeSql(`INSERT INTO sTypes (token, name, min_value, max_value) 
+                          SELECT ?, ?, ?, ? 
+                          WHERE NOT EXISTS(SELECT 1 FROM sTypes WHERE token=?)`,
+                            [sensor.typeToken, sensor.defaultName, sensor.maxValue, sensor.minValue, sensor.typeToken]))
+                )
+            )
+            .then(()=> this.fetchSensorTypes());
     }
 
     fetchSensorTypes(): Promise<any> {

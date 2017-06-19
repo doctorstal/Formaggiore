@@ -2,20 +2,22 @@ import {Component} from "@angular/core";
 import {
     IonicPage,
     NavController,
-    NavParams
+    NavParams,
+    PopoverController
 } from "ionic-angular";
-import {RecipeDetails} from "../../providers/data/datatypes";
+import {
+    RecipeDetails,
+    StepDetails
+} from "../../providers/data/datatypes";
 import {Subject} from "rxjs/Subject";
 import {RecipesService} from "../../providers/recipes-service";
 import {StepsService} from "../../providers/steps-service";
+import {isUndefined} from "util";
+import {ChooseDevicePopover} from "./choose-device-popover/choose-device-popover";
+import {Observable} from "rxjs/Observable";
+import * as moment from "moment";
 
 
-/**
- * Generated class for the RecipeDetailsPage page.
- *
- * See http://ionicframework.com/docs/components/#navigation for more info
- * on Ionic pages and navigation.
- */
 @IonicPage()
 @Component({
     selector: 'page-recipe-details-page',
@@ -26,34 +28,88 @@ export class RecipeDetailsPage {
     private details: RecipeDetails;
     private detailsSubject: Subject<any>;
 
+    private started: boolean = false;
+    private finished: boolean = false;
+    private currentStep: StepDetails;
+    private currentIndex: number = 0;
+    private currentDevice: String;
+    private currentTime: string;
+
+
     constructor(public navCtrl: NavController, public navParams: NavParams,
                 private recipesService: RecipesService,
-                private stepService: StepsService) {
-        /*this.detailsSubject = new Subject();
-         let getRecipe$ = this.detailsSubject
-         .flatMap(() => this.recipesService.getRecipe(this.navParams.data.id));
-
-         getRecipe$.subscribe(data => {
-         console.log("1data", data);
-         this.details = data;
-         });
-
-         getRecipe$
-         .delay(10)
-         .flatMap(data =>
-         Observable.forkJoin(data.steps && data.steps.map(step =>
-         this.stepService.getStepMedia(step.id))
-         )
-         )
-         .subscribe(medias => {
-         this.details.steps &&
-         this.details.steps.map((step, index) =>
-         step.media = medias[index]);
-         });*/
+                private stepService: StepsService,
+                private popoverCtrl: PopoverController) {
+        if (isUndefined(this.navParams.data.id)) {
+            this.navParams.data.id = 1;
+        }
         this.detailsSubject = new Subject();
         this.detailsSubject
             .flatMap(() => this.recipesService.getRecipeDetails(this.navParams.data.id))
             .subscribe(recipe => this.details = recipe);
+    }
+
+    startRecipe() {
+        this.started = true;
+        this.updateCurrentStep();
+    }
+
+    nextStep() {
+        this.currentIndex++;
+        this.updateCurrentStep();
+    }
+
+    private updateCurrentStep() {
+        if (this.currentIndex < this.details.steps.length) {
+            this.currentStep = this.details.steps[this.currentIndex];
+        } else {
+            this.currentStep = null;
+            this.finished = true;
+        }
+    }
+
+    startOver() {
+
+        this.currentIndex = 0;
+        this.started = false;
+        this.finished = false;
+    }
+
+    chooseDevice() {
+        let popover = this.popoverCtrl.create(ChooseDevicePopover,
+            {
+                directive: this.currentStep.directive,
+                startCallback: deviceId => {
+                    popover.dismiss()
+                        .then(() => this.deviceChosen(deviceId));
+                }
+            },
+            {showBackdrop: true, enableBackdropDismiss: true});
+
+        popover.present();
+
+    }
+
+    deviceChosen(id: string) {
+        this.currentDevice = id;
+        this.startTimer(this.currentStep.directive.time);
+    }
+
+    startTimer(time: number) {
+        Observable.interval(1000)
+            .take(time * 60 + 1)
+            .map(t => time * 60 - t)
+            .map(t => t * 1000)
+            .subscribe(t => this.currentTime = moment(t).utc().format("HH:mm:ss"),
+                null,
+                () => this.finishTimer()
+            );
+    }
+
+    finishTimer() {
+        this.currentTime = "";
+        this.currentDevice = "";
+        this.nextStep();
     }
 
     ionViewWillEnter() {

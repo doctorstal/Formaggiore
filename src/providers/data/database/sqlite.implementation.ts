@@ -71,13 +71,15 @@ export class NativeDB extends DB {
     private _tx: Promise<any>;
 
     transaction(executor: (tx: DBTransaction) => any): Promise<any> {
-        this._tx = (this._tx || Promise.resolve())
-            .then(() => this._transaction(executor))
+        let tx = (this._tx || Promise.resolve())
+            .then(() => this._transaction(executor));
+        this._tx= tx
             .catch(error => {
                 this._tx = null;
                 return error;
             });
-        return this._tx;
+
+        return tx;
     }
 
     private _transaction(executor: (tx: DBTransaction) => any): Promise<any> {

@@ -31,6 +31,7 @@ export type StepDetails = Step & {
 export type Knowledge = BasicArticle;
 
 export type SensorDirective = {
+    sTypeName?: string,
     sTypeToken: string,
     startValue: number,
     endValue: number,

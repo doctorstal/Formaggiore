@@ -1,18 +1,13 @@
 import {Component} from "@angular/core";
 import {
     IonicPage,
+    LoadingController,
     NavController,
     NavParams
 } from "ionic-angular";
 import {BluetoothService} from "../../providers/bluetooth-service";
 import {DevicesService} from "../../providers/devices-service";
 
-/**
- * Generated class for the DeviceFindPage page.
- *
- * See http://ionicframework.com/docs/components/#navigation for more info
- * on Ionic pages and navigation.
- */
 @IonicPage()
 @Component({
     selector: 'page-device-find-page',
@@ -26,11 +21,11 @@ export class DeviceFindPage {
 
     searchUnpaired = false; // Unsupported yet
 
-
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
+                private loadingCtrl: LoadingController,
                 private btService: BluetoothService,
-                private devicesService:DevicesService) {
+                private devicesService: DevicesService) {
         btService.devices$.subscribe(devices => this.devices = devices);
     }
 
@@ -44,9 +39,9 @@ export class DeviceFindPage {
 
     list(refresher = null) {
         /*this.devices = [
-            {name: 'Test', address: 'AA:00:0B:20:34:FF'},
-            {name: 'H-06', address: 'AA:00:0B:20:34:FF'},
-        ];*/
+         {name: 'Test', address: 'AA:00:0B:20:34:FF'},
+         {name: 'H-06', address: 'AA:00:0B:20:34:FF'},
+         ];*/
 
         this.status = '';
         this.btService.list()
@@ -54,11 +49,14 @@ export class DeviceFindPage {
             .then(() => refresher && refresher.complete());
     }
 
-    connect(d: { name: string, id: string}) {
-        this.btService
-            .getSensors(d.id)
+    connect(d: { name: string, id: string }) {
+        let loading = this.loadingCtrl.create();
+        loading.present()
+            .then(() => this.btService.getSensors(d.id))
             .then(sensors =>
-                this.devicesService.saveSensorTypes(sensors));
+                this.devicesService.saveSensorTypes(sensors))
+            .then(() => loading.dismiss())
+            .then(() => this.navCtrl.push('SensorTypesPage'));
     }
 
     ab2str(buf) {

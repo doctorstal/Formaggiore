@@ -25,7 +25,9 @@ export class SensorTypesPage {
     constructor(private devicesService: DevicesService,
                 public navCtrl: NavController,
                 public navParams: NavParams) {
-        devicesService.sensorTypes$.subscribe(sensors => this.sensors = sensors);
+        devicesService.sensorTypes$
+            .do(console.log)
+            .subscribe(sensors => this.sensors = sensors);
     }
 
     ionViewDidLoad() {
