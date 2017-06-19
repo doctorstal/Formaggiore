@@ -21,6 +21,7 @@ import {CameraMock} from "../providers/camera-mock";
 import {BluetoothSerial} from "@ionic-native/bluetooth-serial";
 import {BluetoothService} from "../providers/bluetooth-service";
 import {ChooseDevicePopover} from "../pages/recipe-details-page/choose-device-popover/choose-device-popover";
+import {Insomnia} from "@ionic-native/insomnia";
 
 @NgModule({
     declarations: [
@@ -39,6 +40,7 @@ import {ChooseDevicePopover} from "../pages/recipe-details-page/choose-device-po
     providers: [
         {provide: PLATFORM_READY, useFactory: (platform) => platform.ready(), deps: [Platform]},
         ...dataServiceProviders,
+        Insomnia,
         StatusBar,
         SplashScreen,
         {provide: ErrorHandler, useClass: IonicErrorHandler},

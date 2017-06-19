@@ -43,7 +43,6 @@ export class ChooseDevicePopover implements OnInit {
     }
 
     connect(device) {
-        // TODO connect to device and send execute request. Now just callback to start timer on recipes page
         let loading = this.loadingCtrl.create();
         loading
             .present()

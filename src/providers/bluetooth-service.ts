@@ -51,6 +51,10 @@ export class BluetoothService {
 
             let connectable: Observable<any> = this.bt.connect(id)
                 .retry(5)
+                .catch(error => {
+                    reject(error);
+                    return Observable.throw(error)
+                })
                 .do(() => resolve())
                 .do(() => this.sendHandshake())
                 .flatMap(() => this.bt.subscribeRawData())

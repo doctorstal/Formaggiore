@@ -1,6 +1,7 @@
 import {Component} from "@angular/core";
 import {
     IonicPage,
+    LoadingController,
     NavController,
     NavParams,
     PopoverController
@@ -11,11 +12,11 @@ import {
 } from "../../providers/data/datatypes";
 import {Subject} from "rxjs/Subject";
 import {RecipesService} from "../../providers/recipes-service";
-import {StepsService} from "../../providers/steps-service";
 import {isUndefined} from "util";
 import {ChooseDevicePopover} from "./choose-device-popover/choose-device-popover";
 import {Observable} from "rxjs/Observable";
 import * as moment from "moment";
+import {Insomnia} from "@ionic-native/insomnia";
 
 
 @IonicPage()
@@ -38,7 +39,8 @@ export class RecipeDetailsPage {
 
     constructor(public navCtrl: NavController, public navParams: NavParams,
                 private recipesService: RecipesService,
-                private stepService: StepsService,
+                private insomnia: Insomnia,
+                private loadingCtrl: LoadingController,
                 private popoverCtrl: PopoverController) {
         if (isUndefined(this.navParams.data.id)) {
             this.navParams.data.id = 1;
@@ -50,8 +52,15 @@ export class RecipeDetailsPage {
     }
 
     startRecipe() {
-        this.started = true;
-        this.updateCurrentStep();
+        let loading = this.loadingCtrl.create();
+        loading.present()
+            .then(() => this.insomnia.keepAwake())
+            .then(() => {
+                this.started = true;
+                this.updateCurrentStep();
+            })
+            .catch(error => console.log("Error calling insomnia: " + error))
+            .then(() => loading.dismiss());
     }
 
     nextStep() {
@@ -63,8 +72,14 @@ export class RecipeDetailsPage {
         if (this.currentIndex < this.details.steps.length) {
             this.currentStep = this.details.steps[this.currentIndex];
         } else {
-            this.currentStep = null;
-            this.finished = true;
+            let loading = this.loadingCtrl.create();
+            loading.present()
+                .then(() => this.insomnia.allowSleepAgain())
+                .then(() => {
+                    this.currentStep = null;
+                    this.finished = true;
+                })
+                .then(() => loading.dismiss());
         }
     }
 
